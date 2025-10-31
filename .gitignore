@@ -1,0 +1,5 @@
+/node_modules
+/coverage
+.env*
+.next
+next-env.d.ts

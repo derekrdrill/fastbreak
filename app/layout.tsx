@@ -1,0 +1,23 @@
+import './_styles/globals.css';
+import type { Metadata } from 'next';
+import Header from './_components/Header/Header';
+
+export const metadata: Metadata = {
+  title: 'Fastbreak - Sports Event Management',
+  description: 'Create, view, and manage sports events with venue information',
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang='en'>
+      <body>
+        <Header />
+        {children}
+      </body>
+    </html>
+  );
+}
