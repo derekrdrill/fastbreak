@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { SPORTS } from '@/app/_constants/events';
 
 interface EventsShimmerProps {
@@ -6,16 +7,11 @@ interface EventsShimmerProps {
 }
 
 function EventsShimmer({ sportFilter, view }: EventsShimmerProps) {
-  const sportsToShow =
-    sportFilter === null || sportFilter === undefined
-      ? SPORTS
-      : SPORTS.filter(sport => sport.id === sportFilter);
+  const hasNoSportFilter = sportFilter === null || sportFilter === undefined;
+  const sportsToShow = hasNoSportFilter ? SPORTS : SPORTS.filter(sport => sport.id === sportFilter);
 
   const isCardView = view === 'card';
-  const shimmerItemClass = isCardView ? 'h-40' : 'h-20';
-  const containerClass = isCardView
-    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
-    : 'flex flex-col gap-4';
+  const isListView = !isCardView;
 
   return (
     <div className='space-y-8'>
@@ -24,9 +20,20 @@ function EventsShimmer({ sportFilter, view }: EventsShimmerProps) {
           <div className='mb-4'>
             <div className='h-7 w-32 bg-gray-200 rounded animate-pulse' />
           </div>
-          <div className={containerClass}>
+          <div
+            className={classNames({
+              'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4': isCardView,
+              'flex flex-col gap-4': isListView,
+            })}
+          >
             {[1, 2, 3].map(i => (
-              <div key={i} className={`${shimmerItemClass} bg-gray-200 rounded animate-pulse`} />
+              <div
+                key={i}
+                className={classNames('bg-gray-200 rounded animate-pulse', {
+                  'h-40': isCardView,
+                  'h-20': isListView,
+                })}
+              />
             ))}
           </div>
         </div>

@@ -29,7 +29,14 @@ function EventsList({ events }: EventsListProps) {
   return (
     <div className='space-y-8'>
       {eventsBySport.map(({ sport, events }) => {
-        const visibleCards = isMobile ? 1 : isTablet ? 2 : 3;
+        const visibleCardsOnMobile = 1;
+        const visibleCardsOnTablet = 2;
+        const visibleCardsOnDesktop = 3;
+        const visibleCards = isMobile
+          ? visibleCardsOnMobile
+          : isTablet
+            ? visibleCardsOnTablet
+            : visibleCardsOnDesktop;
         const shouldShowCarousel = isCardView && events.length > visibleCards;
 
         return (

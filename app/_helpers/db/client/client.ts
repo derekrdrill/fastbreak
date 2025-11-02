@@ -1,6 +1,12 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+/**
+ * Creates and returns a Supabase client configured for server-side operations.
+ * Uses cookies for authentication state management with SSR support.
+ *
+ * @returns Configured Supabase client instance
+ */
 async function getSupabaseClient() {
   const cookieStore = await cookies();
 

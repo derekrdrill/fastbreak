@@ -1,5 +1,6 @@
 'use client';
 
+import classNames from 'classnames';
 import { useState, useRef, useEffect } from 'react';
 import { useFormContext, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
@@ -36,7 +37,8 @@ function FormAutocomplete<
   required,
 }: FormAutocompleteProps<TFieldValues, TName>) {
   const formContext = useFormContext<TFieldValues>();
-  const formControl = control || formContext.control;
+  const hasControl = Boolean(control);
+  const formControl = hasControl ? control : formContext.control;
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,18 +46,19 @@ function FormAutocomplete<
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const clickedOutside =
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node);
+      const hasDropdown = Boolean(dropdownRef.current);
+      const clickedInDropdown = hasDropdown && dropdownRef.current.contains(event.target as Node);
+      const hasInput = Boolean(inputRef.current);
+      const clickedInInput = hasInput && inputRef.current.contains(event.target as Node);
+      const clickedOutside = hasDropdown && hasInput && !clickedInDropdown && !clickedInInput;
 
       if (clickedOutside) {
         setIsOpen(false);
       }
     };
 
-    if (isOpen) {
+    const shouldListen = isOpen;
+    if (shouldListen) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
@@ -95,9 +98,15 @@ function FormAutocomplete<
           setIsOpen(true);
         };
 
+        const hasLabel = Boolean(label);
+        const hasError = Boolean(fieldState.error);
+
+        const hasFilteredOptions = filteredOptions.length > 0;
+        const shouldShowDropdown = isOpen && hasFilteredOptions;
+
         return (
-          <FormItem className={`relative ${className || ''}`}>
-            {label && <FormLabel required={required}>{label}</FormLabel>}
+          <FormItem className={classNames('relative', className)}>
+            {hasLabel && <FormLabel required={required}>{label}</FormLabel>}
             <FormControl>
               <Input
                 ref={inputRef}
@@ -106,10 +115,12 @@ function FormAutocomplete<
                 onFocus={handleInputFocus}
                 placeholder={placeholder}
                 autoComplete='off'
-                className={fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                className={classNames({
+                  'border-red-500 focus-visible:ring-red-500': hasError,
+                })}
               />
             </FormControl>
-            {isOpen && filteredOptions.length > 0 && (
+            {shouldShowDropdown && (
               <div
                 ref={dropdownRef}
                 className='absolute z-50 w-full mt-1 bg-background border border-input rounded-md shadow-md max-h-60 overflow-auto'

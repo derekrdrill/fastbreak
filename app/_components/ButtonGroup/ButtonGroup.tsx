@@ -35,6 +35,9 @@ function ButtonGroup<T = string>({
         const isFirst = index === 0;
         const isLast = index === options.length - 1;
         const isSelected = value === option.value;
+        const isNotFirst = !isFirst;
+
+        const buttonVariant = isSelected ? 'default' : 'outline';
 
         return (
           <Button
@@ -42,14 +45,14 @@ function ButtonGroup<T = string>({
             className={classNames('rounded-none border-0', {
               'rounded-l-md': isFirst,
               'rounded-r-md': isLast,
-              'border-l border-gray-300': !isFirst,
+              'border-l border-gray-300': isNotFirst,
               'bg-purple-600 text-white hover:bg-purple-700': isSelected,
               'bg-white text-gray-700 hover:bg-purple-100': !isSelected,
             })}
             onClick={() => onChange(option.value)}
             size='sm'
             type='button'
-            variant={isSelected ? 'default' : 'outline'}
+            variant={buttonVariant}
             disabled={disabled}
           >
             {option.icon}

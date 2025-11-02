@@ -1,10 +1,8 @@
-// Database types
 export interface Venue {
   id: number;
   name: string;
 }
 
-// Database schema - what's actually stored in Supabase
 export interface EventDB {
   id: number;
   fullName: string;
@@ -15,7 +13,6 @@ export interface EventDB {
   venueIds: number[];
 }
 
-// UI type - what we work with in the frontend (with venue names populated)
 export interface Event {
   id: number;
   fullName: string;
@@ -31,7 +28,6 @@ export interface User {
   email: string;
 }
 
-// UI types
 export type DashboardView = 'card' | 'list';
 
 export type DbResult<T> = {

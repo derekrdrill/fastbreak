@@ -28,13 +28,11 @@ export async function GET(request: Request) {
     if (error) {
       return NextResponse.redirect(`${origin}/auth?error=${encodeURIComponent(error.message)}`);
     }
-    // Verify the user is confirmed after exchange
     if (data?.user && data.session) {
       return NextResponse.redirect(`${origin}/dashboard`);
     }
   }
 
-  // Handle email confirmation with token_hash (alternative method)
   if (tokenHash && type === 'email') {
     const { error } = await supabase.auth.verifyOtp({
       type: 'email',
@@ -46,6 +44,5 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/dashboard`);
   }
 
-  // If no code or token_hash, redirect to auth page
   return NextResponse.redirect(`${origin}/auth`);
 }

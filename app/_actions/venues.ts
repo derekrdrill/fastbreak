@@ -10,16 +10,19 @@ import {
 import type { Venue } from '@/app/_types';
 
 export async function getVenues(): Promise<DbResult<Venue[]>> {
-  return handleDbOperation(async () => {
-    const supabase = await getSupabaseClient();
+  return handleDbOperation({
+    operation: async () => {
+      const supabase = await getSupabaseClient();
 
-    const { data, error } = await supabase.from('venues').select('*').order('name');
+      const { data, error } = await supabase.from('venues').select('*').order('name');
 
-    const result = handleSupabaseError(data, error, 'Failed to fetch venues');
-    if (!result.success) {
-      return result;
-    }
+      const result = handleSupabaseError({ data, error, fallbackError: 'Failed to fetch venues' });
+      if (!result.success) {
+        return result;
+      }
 
-    return createSuccess(data || []);
-  }, 'Failed to fetch venues');
+      return createSuccess({ data: data || [] });
+    },
+    fallbackError: 'Failed to fetch venues',
+  });
 }

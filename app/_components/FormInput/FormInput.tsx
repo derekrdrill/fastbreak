@@ -21,38 +21,51 @@ interface FormInputProps<
 function FormInput<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
->({ name, label, control, className, endIcon, required, ...props }: FormInputProps<TFieldValues, TName>) {
+>({
+  name,
+  label,
+  control,
+  className,
+  endIcon,
+  required,
+  ...props
+}: FormInputProps<TFieldValues, TName>) {
   const formContext = useFormContext<TFieldValues>();
-  const formControl = control || formContext.control;
+  const hasControl = Boolean(control);
+  const formControl = hasControl ? control : formContext.control;
 
   return (
     <FormField
       control={formControl}
       name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={className}>
-          <FormLabel required={required}>{label}</FormLabel>
-          <FormControl>
-            <div className='relative'>
-              <Input
-                {...field}
-                {...props}
-                className={classNames(
-                  fieldState.error && 'border-red-500 focus-visible:ring-red-500',
-                  endIcon ? 'pr-10' : '',
-                  className,
+      render={({ field, fieldState }) => {
+        const hasError = Boolean(fieldState.error);
+        const hasEndIcon = Boolean(endIcon);
+
+        return (
+          <FormItem className={className}>
+            <FormLabel required={required}>{label}</FormLabel>
+            <FormControl>
+              <div className='relative'>
+                <Input
+                  {...field}
+                  {...props}
+                  className={classNames(className, {
+                    'border-red-500 focus-visible:ring-red-500': hasError,
+                    'pr-10': hasEndIcon,
+                  })}
+                />
+                {hasEndIcon && (
+                  <div className='absolute right-3 top-1/2 -translate-y-1/2 flex items-center'>
+                    {endIcon}
+                  </div>
                 )}
-              />
-              {endIcon && (
-                <div className='absolute right-3 top-1/2 -translate-y-1/2 flex items-center'>
-                  {endIcon}
-                </div>
-              )}
-            </div>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 }

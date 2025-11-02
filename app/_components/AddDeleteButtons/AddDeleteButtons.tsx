@@ -1,5 +1,6 @@
 'use client';
 
+import classNames from 'classnames';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -28,7 +29,10 @@ function AddDeleteButtons({
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+    const confirmMessage =
+      'Are you sure you want to delete this event? This action cannot be undone.';
+    const hasConfirmed = confirm(confirmMessage);
+    if (!hasConfirmed) {
       return;
     }
 
@@ -36,15 +40,22 @@ function AddDeleteButtons({
     const result = await deleteEvent(eventId);
     setIsDeleting(false);
 
+    const successMessage = 'Event deleted successfully!';
+    const errorMessage = result.error || 'Failed to delete event';
+
     if (result.success) {
-      toast.success('Event deleted successfully!');
+      toast.success(successMessage);
       const currentEvents = useDashboardStore.getState().events;
-      setEvents(currentEvents.filter(e => e.id !== eventId));
+      const updatedEvents = currentEvents.filter(e => e.id !== eventId);
+      setEvents(updatedEvents);
       router.refresh();
     } else {
-      toast.error(result.error || 'Failed to delete event');
+      toast.error(errorMessage);
     }
   };
+
+  const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
+  const editLinkHref = `/event/${eventId}/edit`;
 
   return (
     <div className='flex gap-2'>
@@ -53,9 +64,12 @@ function AddDeleteButtons({
           asChild
           variant='outline'
           size='sm'
-          className={`border-gray-400 text-gray-400 hover:bg-gray-500 hover:text-gray-50 ${className || ''}`}
+          className={classNames(
+            'border-gray-400 text-gray-400 hover:bg-gray-500 hover:text-gray-50',
+            className,
+          )}
         >
-          <Link href={`/event/${eventId}/edit`}>Edit</Link>
+          <Link href={editLinkHref}>Edit</Link>
         </Button>
       )}
       {showDelete && (
@@ -64,9 +78,12 @@ function AddDeleteButtons({
           size='sm'
           onClick={handleDelete}
           disabled={isDeleting}
-          className={`border-red-500 text-red-500 hover:bg-red-600 hover:text-red-50 hover:border-red-600 ${className || ''}`}
+          className={classNames(
+            'border-red-500 text-red-500 hover:bg-red-600 hover:text-red-50 hover:border-red-600',
+            className,
+          )}
         >
-          {isDeleting ? 'Deleting...' : 'Delete'}
+          {deleteButtonText}
         </Button>
       )}
     </div>

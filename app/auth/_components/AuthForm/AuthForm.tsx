@@ -1,5 +1,6 @@
 'use client';
 
+import classNames from 'classnames';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +44,7 @@ interface AuthFormProps {
   onGoogleAuth: () => void;
 }
 
-export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
+function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
   const [mode, setMode] = useState<AuthMode>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -58,6 +59,7 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
   });
 
   const isLogin = mode === 'login';
+  const isSignup = !isLogin;
 
   const handleModeChange = (newMode: AuthMode) => {
     if (newMode !== mode) {
@@ -72,6 +74,20 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
     await onSubmit(values, mode);
   };
 
+  const descriptionText = isLogin
+    ? 'Sign in to your Fastbreak account'
+    : 'Get started with Fastbreak today';
+  const submitButtonText = isLogin ? 'Sign In' : 'Sign Up';
+  const googleButtonText = isLogin ? 'Sign in with Google' : 'Sign up with Google';
+
+  const passwordInputType = showPassword ? 'text' : 'password';
+  const passwordPlaceholder = isLogin ? 'Enter your password' : 'Create a password';
+
+  const confirmPasswordInputType = showConfirmPassword ? 'text' : 'password';
+
+  const passwordToggleHandler = () => setShowPassword(!showPassword);
+  const confirmPasswordToggleHandler = () => setShowConfirmPassword(!showConfirmPassword);
+
   return (
     <div className='space-y-6'>
       <div className='text-center mb-8'>
@@ -82,11 +98,14 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
             type='button'
             variant='ghost'
             onClick={() => handleModeChange('login')}
-            className={`pb-3 px-1 h-auto text-sm font-medium transition-colors relative rounded-none border-0 ${
-              isLogin
-                ? 'text-foreground'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
+            className={classNames(
+              'pb-3 px-1 h-auto text-sm font-medium transition-colors relative rounded-none border-0',
+              {
+                'text-foreground': isLogin,
+                'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300':
+                  !isLogin,
+              },
+            )}
           >
             Sign In
             {isLogin && <span className='absolute bottom-0 left-0 right-0 h-0.5 bg-foreground' />}
@@ -95,59 +114,64 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
             type='button'
             variant='ghost'
             onClick={() => handleModeChange('signup')}
-            className={`pb-3 px-1 h-auto text-sm font-medium transition-colors relative rounded-none border-0 ${
-              !isLogin
-                ? 'text-foreground'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
+            className={classNames(
+              'pb-3 px-1 h-auto text-sm font-medium transition-colors relative rounded-none border-0',
+              {
+                'text-foreground': isSignup,
+                'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300':
+                  !isSignup,
+              },
+            )}
           >
             Sign Up
-            {!isLogin && <span className='absolute bottom-0 left-0 right-0 h-0.5 bg-foreground' />}
+            {isSignup && <span className='absolute bottom-0 left-0 right-0 h-0.5 bg-foreground' />}
           </Button>
         </div>
 
-        <p className='text-gray-600 dark:text-gray-400 mt-6'>
-          {isLogin ? 'Sign in to your Fastbreak account' : 'Get started with Fastbreak today'}
-        </p>
+        <p className='text-gray-600 dark:text-gray-400 mt-6'>{descriptionText}</p>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
-          <FormInput name='email' label='Email' type='email' placeholder='Enter your email' required />
+          <FormInput
+            name='email'
+            label='Email'
+            type='email'
+            placeholder='Enter your email'
+            required
+          />
           <FormInput
             name='password'
             label='Password'
-            type={showPassword ? 'text' : 'password'}
-            placeholder={isLogin ? 'Enter your password' : 'Create a password'}
+            type={passwordInputType}
+            placeholder={passwordPlaceholder}
             required
             endIcon={
               <button
                 type='button'
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={passwordToggleHandler}
                 className='text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer'
               >
-                {showPassword ? <HiEyeSlash className='h-5 w-5' /> : <HiEye className='h-5 w-5' />}
+                {showPassword && <HiEyeSlash className='h-5 w-5' />}
+                {!showPassword && <HiEye className='h-5 w-5' />}
               </button>
             }
           />
-          {!isLogin && (
+          {isSignup && (
             <FormInput
               name='confirmPassword'
               label='Confirm Password'
-              type={showConfirmPassword ? 'text' : 'password'}
+              type={confirmPasswordInputType}
               placeholder='Confirm your password'
               required
               endIcon={
                 <button
                   type='button'
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onClick={confirmPasswordToggleHandler}
                   className='text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer'
                 >
-                  {showConfirmPassword ? (
-                    <HiEyeSlash className='h-5 w-5' />
-                  ) : (
-                    <HiEye className='h-5 w-5' />
-                  )}
+                  {showConfirmPassword && <HiEyeSlash className='h-5 w-5' />}
+                  {!showConfirmPassword && <HiEye className='h-5 w-5' />}
                 </button>
               }
             />
@@ -156,7 +180,7 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
             type='submit'
             className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01]'
           >
-            {isLogin ? 'Sign In' : 'Sign Up'}
+            {submitButtonText}
           </Button>
         </form>
       </Form>
@@ -189,8 +213,10 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
             fill='#EA4335'
           />
         </svg>
-        {isLogin ? 'Sign in with Google' : 'Sign up with Google'}
+        {googleButtonText}
       </Button>
     </div>
   );
 }
+
+export default AuthForm;

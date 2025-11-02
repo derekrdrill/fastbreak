@@ -14,7 +14,7 @@ interface DashboardRootProps {
   initialEvents: Event[];
 }
 
-export default function DashboardRoot({ initialEvents }: DashboardRootProps) {
+function DashboardRoot({ initialEvents }: DashboardRootProps) {
   const searchParams = useSearchParams();
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [isInitialMount, setIsInitialMount] = useState(true);
@@ -27,19 +27,15 @@ export default function DashboardRoot({ initialEvents }: DashboardRootProps) {
   const setPendingSportFilter = useDashboardStore(state => state.setPendingSportFilter);
   const setIsLoading = useDashboardStore(state => state.setIsLoading);
 
-  // Get sport filter from URL params
   const urlSport = searchParams.get('sport');
   const urlSportFilter = urlSport ? Number(urlSport) : null;
   const effectiveSportFilter =
     pendingSportFilter !== undefined ? pendingSportFilter : urlSportFilter;
 
-  // Show shimmer during initial hydration period or when loading
   const showShimmer = !hasHydrated || isLoading || isInitialMount;
 
-  // Sync events from server props to local state (initial mount only)
   useEffect(() => {
     if (isInitialMount) {
-      // Small delay to allow hydration to complete, then show data
       const timer = setTimeout(() => {
         setEvents(initialEvents);
         setIsInitialMount(false);
@@ -49,10 +45,8 @@ export default function DashboardRoot({ initialEvents }: DashboardRootProps) {
     }
   }, [initialEvents, isInitialMount, setIsLoading]);
 
-  // Update events and clear loading state when initialEvents changes (after initial mount)
   useEffect(() => {
     if (!isInitialMount) {
-      // Use startTransition to avoid blocking render
       startTransition(() => {
         setEvents(initialEvents);
         setIsLoading(false);
@@ -106,8 +100,21 @@ export default function DashboardRoot({ initialEvents }: DashboardRootProps) {
         </div>
       )}
 
-      {/* Show shimmer during hydration, initial mount, or when loading */}
-      {showShimmer ? shimmerComponent : hasHydrated ? <EventsList events={events} /> : null}
+      {(() => {
+        const shouldShowShimmer = showShimmer;
+        const isHydratedAndNotLoading = hasHydrated && !showShimmer;
+        const shouldShowEventsList = isHydratedAndNotLoading;
+
+        if (shouldShowShimmer) {
+          return shimmerComponent;
+        }
+        if (shouldShowEventsList) {
+          return <EventsList events={events} />;
+        }
+        return null;
+      })()}
     </div>
   );
 }
+
+export default DashboardRoot;

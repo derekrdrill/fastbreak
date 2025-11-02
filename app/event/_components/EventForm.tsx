@@ -33,41 +33,60 @@ interface EventFormProps {
   event?: Event;
 }
 
-export default function EventForm({ venues, event }: EventFormProps) {
+function EventForm({ venues, event }: EventFormProps) {
   const router = useRouter();
+  const setSelectedPlan = useDashboardStore(state => state.setSelectedPlan);
+
+  const isEditMode = Boolean(event);
+  const eventFullName = event?.fullName || '';
+  const eventShortName = event?.shortName || '';
+  const eventDescription = event?.description || '';
+  const eventSport = SPORTS.find(s => s.id === event?.sportTypeId);
+  const eventSportName = eventSport?.name;
+  const eventDate = event?.date ? new Date(event.date).toISOString().slice(0, 16) : '';
+  const eventVenues = event?.venues
+    ? Array.isArray(event.venues)
+      ? event.venues
+      : [event.venues]
+    : [''];
+
+  const formDefaultValues = isEditMode
+    ? {
+        fullName: eventFullName,
+        shortName: eventShortName,
+        description: eventDescription,
+        sportType: eventSportName,
+        date: eventDate,
+        venues: eventVenues,
+      }
+    : {
+        fullName: '',
+        shortName: '',
+        description: '',
+        sportType: undefined,
+        date: '',
+        venues: [''],
+      };
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: event
-      ? {
-          fullName: event.fullName,
-          shortName: event.shortName,
-          description: event.description || '',
-          sportType: SPORTS.find(s => s.id === event.sportTypeId)?.name,
-          date: new Date(event.date).toISOString().slice(0, 16),
-          venues: Array.isArray(event.venues) ? event.venues : [event.venues],
-        }
-      : {
-          fullName: '',
-          shortName: '',
-          description: '',
-          sportType: undefined,
-          date: '',
-          venues: [''],
-        },
+    defaultValues: formDefaultValues,
   });
   const venuesArray = form.watch('venues');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const setSelectedPlan = useDashboardStore(state => state.setSelectedPlan);
 
   const hasMoreThanOneVenue = venuesArray?.length && venuesArray.length > 1;
-  const submitButtonText = isSubmitting
-    ? event
-      ? 'Updating...'
-      : 'Creating...'
-    : event
-      ? 'Update Event'
-      : 'Create Event';
+
+  const isUpdating = isSubmitting && isEditMode;
+  const isCreating = isSubmitting && !isEditMode;
+  const submitButtonText = isUpdating
+    ? 'Updating...'
+    : isCreating
+      ? 'Creating...'
+      : isEditMode
+        ? 'Update Event'
+        : 'Create Event';
 
   const addVenue = () => {
     form.setValue('venues', [...venuesArray, '']);
@@ -84,8 +103,7 @@ export default function EventForm({ venues, event }: EventFormProps) {
     setIsSubmitting(true);
 
     let result;
-    if (event) {
-      // Update existing event
+    if (isEditMode && event) {
       const sport = SPORTS.find(s => s.name === values.sportType);
       if (!sport) {
         toast.error('Invalid sport type');
@@ -103,7 +121,6 @@ export default function EventForm({ venues, event }: EventFormProps) {
         venues: values.venues,
       });
     } else {
-      // Create new event with all venues
       result = await createEvent({
         fullName: values.fullName,
         shortName: values.shortName,
@@ -116,11 +133,17 @@ export default function EventForm({ venues, event }: EventFormProps) {
 
     setIsSubmitting(false);
 
+    const successMessage = isEditMode
+      ? 'Event updated successfully!'
+      : 'Event created successfully!';
+    const errorAction = isEditMode ? 'update' : 'create';
+    const errorMessage = result.error || `Failed to ${errorAction} event`;
+
     if (result.success) {
-      toast.success(event ? 'Event updated successfully!' : 'Event created successfully!');
+      toast.success(successMessage);
       router.push('/dashboard');
     } else {
-      toast.error(result.error || `Failed to ${event ? 'update' : 'create'} event`);
+      toast.error(errorMessage);
     }
   };
 
@@ -202,3 +225,5 @@ export default function EventForm({ venues, event }: EventFormProps) {
     </Form>
   );
 }
+
+export default EventForm;

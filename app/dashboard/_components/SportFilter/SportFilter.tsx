@@ -12,28 +12,35 @@ function SportFilter() {
   const setPendingSportFilter = useDashboardStore(state => state.setPendingSportFilter);
   const setIsLoading = useDashboardStore(state => state.setIsLoading);
 
-  // Get sport filter from URL params
   const urlSport = searchParams.get('sport');
-  const urlSportFilter = urlSport ? Number(urlSport) : null;
+  const hasUrlSport = Boolean(urlSport);
+  const urlSportFilter = hasUrlSport ? Number(urlSport) : null;
 
   // Use pending value if available (for immediate UI feedback), otherwise use URL value
-  const effectiveSportFilter =
-    pendingSportFilter !== undefined ? pendingSportFilter : urlSportFilter;
-  const selectValue =
-    effectiveSportFilter === null || effectiveSportFilter === undefined
-      ? ''
-      : String(effectiveSportFilter);
+  const hasPendingFilter = pendingSportFilter !== undefined;
+  const effectiveSportFilter = hasPendingFilter ? pendingSportFilter : urlSportFilter;
+
+  const isFilterNull = effectiveSportFilter === null;
+  const isFilterUndefined = effectiveSportFilter === undefined;
+  const hasNoFilter = isFilterNull || isFilterUndefined;
+  const selectValue = hasNoFilter ? '' : String(effectiveSportFilter);
 
   const handleChange = (sportId: number | null) => {
     setPendingSportFilter(sportId);
     setIsLoading(true);
     const params = new URLSearchParams(searchParams.toString());
-    if (sportId !== null) {
-      params.set('sport', String(sportId));
+
+    const hasSportId = sportId !== null;
+    if (hasSportId) {
+      const sportIdString = String(sportId);
+      params.set('sport', sportIdString);
     } else {
       params.delete('sport');
     }
-    router.push(`/dashboard?${params.toString()}`);
+
+    const paramsString = params.toString();
+    const dashboardUrl = `/dashboard?${paramsString}`;
+    router.push(dashboardUrl);
   };
 
   return (

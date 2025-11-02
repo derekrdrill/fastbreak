@@ -1,5 +1,6 @@
 'use client';
 
+import classNames from 'classnames';
 import { useRouter } from 'next/navigation';
 import { IoArrowBack } from 'react-icons/io5';
 
@@ -9,16 +10,16 @@ interface BackButtonProps {
   label?: string;
 }
 
-export default function BackButton({
-  className,
-  href,
-  label = 'Back to Dashboard',
-}: BackButtonProps) {
+function BackButton({ className, href, label = 'Back to Dashboard' }: BackButtonProps) {
   const router = useRouter();
+
+  const hasHref = Boolean(href);
+  const fallbackHref = '/dashboard';
+  const finalHref = href || fallbackHref;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    if (href) {
+    if (hasHref && href) {
       router.push(href);
     } else {
       router.back();
@@ -27,12 +28,17 @@ export default function BackButton({
 
   return (
     <a
-      href={href || '/dashboard'}
+      href={finalHref}
       onClick={handleClick}
-      className={className || 'inline-flex items-center text-blue-600 hover:text-blue-800 mb-4'}
+      className={classNames(
+        'inline-flex items-center text-blue-600 hover:text-blue-800 mb-4',
+        className,
+      )}
     >
       <IoArrowBack className='w-5 h-5 mr-2' />
       {label}
     </a>
   );
 }
+
+export default BackButton;
