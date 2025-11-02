@@ -8,13 +8,19 @@ import { Button } from '@/components/ui/button';
 import { deleteEvent } from '@/app/_actions/events';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 
-interface EventActionsProps {
-  eventId: number;
+interface AddDeleteButtonsProps {
   className?: string;
+  eventId: number;
   showDelete?: boolean;
+  showEdit?: boolean;
 }
 
-function EventActions({ eventId, className, showDelete = false }: EventActionsProps) {
+function AddDeleteButtons({
+  className,
+  eventId,
+  showDelete = false,
+  showEdit = true,
+}: AddDeleteButtonsProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const setEvents = useDashboardStore(state => state.setEvents);
@@ -42,16 +48,23 @@ function EventActions({ eventId, className, showDelete = false }: EventActionsPr
 
   return (
     <div className='flex gap-2'>
-      <Button asChild variant='outline' size='sm' className={className}>
-        <Link href={`/event/${eventId}/edit`}>Edit</Link>
-      </Button>
+      {showEdit && (
+        <Button
+          asChild
+          variant='outline'
+          size='sm'
+          className={`border-gray-400 text-gray-400 hover:bg-gray-500 hover:text-gray-50 ${className || ''}`}
+        >
+          <Link href={`/event/${eventId}/edit`}>Edit</Link>
+        </Button>
+      )}
       {showDelete && (
         <Button
           variant='outline'
           size='sm'
           onClick={handleDelete}
           disabled={isDeleting}
-          className={className}
+          className={`border-red-500 text-red-500 hover:bg-red-600 hover:text-red-50 hover:border-red-600 ${className || ''}`}
         >
           {isDeleting ? 'Deleting...' : 'Delete'}
         </Button>
@@ -60,4 +73,4 @@ function EventActions({ eventId, className, showDelete = false }: EventActionsPr
   );
 }
 
-export default EventActions;
+export default AddDeleteButtons;

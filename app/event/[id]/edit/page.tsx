@@ -3,16 +3,12 @@ import { IoArrowBack } from 'react-icons/io5';
 import EventForm from '@/app/event/_components/EventForm';
 import { getVenues } from '@/app/_actions/venues';
 import { getEvent } from '@/app/_actions/events';
-import EventActions from '@/app/dashboard/_components/EventActions/EventActions';
+import AddDeleteButtons from '@/app/_components/AddDeleteButtons/AddDeleteButtons';
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // Fetch venues and event from database
-  const [venuesResult, eventResult] = await Promise.all([
-    getVenues(),
-    getEvent(Number(id)),
-  ]);
+  const [venuesResult, eventResult] = await Promise.all([getVenues(), getEvent(Number(id))]);
 
   const venues = venuesResult.success ? venuesResult.data || [] : [];
   const event = eventResult.success ? eventResult.data || null : null;
@@ -27,16 +23,15 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
         Back to Dashboard
       </Link>
       <h1 className='text-3xl font-bold mb-6'>Edit Event</h1>
-      {event ? (
+      {event && (
         <>
           <EventForm venues={venues} event={event} />
           <div className='mt-6 pt-6 border-t'>
-            <EventActions eventId={event.id} showDelete />
+            <AddDeleteButtons eventId={event.id} showDelete showEdit={false} />
           </div>
         </>
-      ) : (
-        <p>Event not found</p>
       )}
+      {!event && <p>Event not found</p>}
     </div>
   );
 }
