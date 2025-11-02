@@ -46,7 +46,7 @@ const EVENTS = [
     fullName: 'Real Madrid vs Barcelona',
     shortName: 'RM vs BAR',
     date: new Date('2025-01-01'),
-    venue: 'Venue 1',
+    venues: 'Venue 1',
     sportType: 1,
   },
   {
@@ -54,7 +54,7 @@ const EVENTS = [
     fullName: 'Real Madrid vs Atletico Madrid',
     shortName: 'RM vs ATM',
     date: new Date('2025-01-02'),
-    venue: 'Venue 2',
+    venues: 'Venue 2',
     sportType: 1,
   },
   {
@@ -62,7 +62,7 @@ const EVENTS = [
     fullName: 'Los Angeles Lakers vs New York Knicks',
     shortName: 'LAL vs NYK',
     date: new Date('2025-01-02'),
-    venue: 'Venue 2',
+    venues: 'Venue 2',
     sportType: 2,
   },
   {
@@ -70,7 +70,7 @@ const EVENTS = [
     fullName: 'Charlotte Hornets vs Washington Wizards',
     shortName: 'CHA vs WAS',
     date: new Date('2025-01-03'),
-    venue: 'Venue 3',
+    venues: 'Venue 3',
     sportType: 2,
   },
   {
@@ -78,7 +78,7 @@ const EVENTS = [
     fullName: 'Wimbeldon Semi Finals',
     shortName: 'WIM Semi',
     date: new Date('2025-01-03'),
-    venue: ['Venue 3', 'Venue 4'],
+    venues: ['Venue 3', 'Venue 4'],
     sportType: 3,
   },
   {
@@ -86,7 +86,7 @@ const EVENTS = [
     fullName: 'Australian Open Semi Finals',
     shortName: 'AO Semi',
     date: new Date('2025-01-04'),
-    venue: ['Venue 5', 'Venue 6'],
+    venues: ['Venue 5', 'Venue 6'],
     sportType: 3,
   },
   {
@@ -94,7 +94,7 @@ const EVENTS = [
     fullName: 'Atlanta Falcons vs Carolina Panthers',
     shortName: 'ATL vs CAR',
     date: new Date('2025-01-04'),
-    venue: 'Venue 4',
+    venues: 'Venue 4',
     sportType: 4,
   },
   {
@@ -102,7 +102,7 @@ const EVENTS = [
     fullName: 'New York Jets vs Buffalo Bills',
     shortName: 'NYJ vs BUF',
     date: new Date('2025-01-04'),
-    venue: 'Venue 4',
+    venues: 'Venue 4',
     sportType: 4,
   },
   {
@@ -110,7 +110,7 @@ const EVENTS = [
     fullName: 'Chicago Cubs vs Milwaukee Brewers',
     shortName: 'CHC vs MIL',
     date: new Date('2025-01-04'),
-    venue: 'Venue 4',
+    venues: 'Venue 4',
     sportType: 5,
   },
   {
@@ -118,7 +118,7 @@ const EVENTS = [
     fullName: 'Los Angeles Dodgers vs San Francisco Giants',
     shortName: 'LAD vs SF',
     date: new Date('2025-01-04'),
-    venue: 'Venue 4',
+    venues: 'Venue 4',
     sportType: 5,
   },
   {
@@ -126,7 +126,7 @@ const EVENTS = [
     fullName: 'Toronto Maple Leafs vs Montreal Canadiens',
     shortName: 'TOR vs MTL',
     date: new Date('2025-01-04'),
-    venue: 'Venue 4',
+    venues: 'Venue 4',
     sportType: 6,
   },
   {
@@ -134,7 +134,7 @@ const EVENTS = [
     fullName: 'Edmonton Oilers vs Calgary Flames',
     shortName: 'EDM vs CGY',
     date: new Date('2025-01-04'),
-    venue: 'Venue 4',
+    venues: 'Venue 4',
     sportType: 6,
   },
 ];

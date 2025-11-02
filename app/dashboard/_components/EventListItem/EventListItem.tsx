@@ -1,8 +1,8 @@
 import { Event } from '@/app/_lib/types';
-import { getFormattedVenues } from '@/app/dashboard/helpers/dashboard.helpers';
+import { getFormattedVenues } from '@/app/dashboard/_helpers/dashboard.helpers';
 import EventEditButton from '../EventEditButton/EventEditButton';
 
-function EventListItem({ id, date, fullName, shortName, venues }: Event) {
+function EventListItem({ id, date, fullName, shortName, venues }: Omit<Event, 'sportType'>) {
   const formattedDate = date.toLocaleDateString();
   const formattedVenues = getFormattedVenues({ venues });
 

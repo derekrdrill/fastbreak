@@ -1,10 +1,11 @@
 import { Event } from '@/app/_lib/types';
+import { getFormattedVenues } from '@/app/dashboard/_helpers/dashboard.helpers';
+import { EventEditButton } from '@/app/dashboard/_components';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { getFormattedVenues } from '@/app/dashboard/helpers/dashboard.helpers';
-import EventEditButton from '../EventEditButton/EventEditButton';
 
-function EventCard({ id, shortName, fullName, date, venues }: Event) {
+function EventCard({ id, shortName, fullName, date, venues }: Omit<Event, 'sportType'>) {
   const formattedDate = date.toLocaleDateString();
   const formattedVenues = getFormattedVenues({ venues });
 

@@ -1,6 +1,6 @@
 import './_styles/globals.css';
 import type { Metadata } from 'next';
-import Header from './_components/common/Header/Header';
+import Header from './_components/Header/Header';
 
 export const metadata: Metadata = {
   title: 'Fastbreak - Sports Event Management',

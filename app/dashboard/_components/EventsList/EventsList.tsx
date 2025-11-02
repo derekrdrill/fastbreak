@@ -1,12 +1,13 @@
 import classNames from 'classnames';
 import { Fragment } from 'react/jsx-runtime';
 
-import type { DashboardView } from '@/app/_lib/types';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { EventCard, EventListItem } from '@/app/dashboard/components';
-import { getEventsBySport } from '@/app/dashboard/helpers/dashboard.helpers';
+import { EventCard, EventListItem } from '@/app/dashboard/_components';
+import { getEventsBySport } from '@/app/dashboard/_helpers/dashboard.helpers';
+import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 
-function EventList({ view }: { view: DashboardView }) {
+function EventsList() {
+  const view = useDashboardStore(state => state.view);
   const eventsBySport = getEventsBySport();
 
   const isCardView = view === 'card';
@@ -30,24 +31,10 @@ function EventList({ view }: { view: DashboardView }) {
               <Fragment key={event.id}>
                 {isCardView && (
                   <TooltipProvider>
-                    <EventCard
-                      id={event.id}
-                      date={event.date}
-                      fullName={event.fullName}
-                      shortName={event.shortName}
-                      venues={event.venue}
-                    />
+                    <EventCard {...event} />
                   </TooltipProvider>
                 )}
-                {isListView && (
-                  <EventListItem
-                    id={event.id}
-                    date={event.date}
-                    fullName={event.fullName}
-                    shortName={event.shortName}
-                    venues={event.venue}
-                  />
-                )}
+                {isListView && <EventListItem {...event} />}
               </Fragment>
             ))}
           </div>
@@ -57,4 +44,4 @@ function EventList({ view }: { view: DashboardView }) {
   );
 }
 
-export default EventList;
+export default EventsList;
