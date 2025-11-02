@@ -1,9 +1,7 @@
-import Link from 'next/link';
-import { IoArrowBack } from 'react-icons/io5';
 import EventForm from '@/app/event/_components/EventForm';
 import { getVenues } from '@/app/_actions/venues';
 import { getEvent } from '@/app/_actions/events';
-import AddDeleteButtons from '@/app/_components/AddDeleteButtons/AddDeleteButtons';
+import { BackButton, AddDeleteButtons } from '@/app/_components';
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,13 +13,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className='container mx-auto px-4 py-8 max-w-2xl'>
-      <Link
-        href='/dashboard'
-        className='inline-flex items-center text-blue-600 hover:text-blue-800 mb-4'
-      >
-        <IoArrowBack className='w-5 h-5 mr-2' />
-        Back to Dashboard
-      </Link>
+      <BackButton />
       <h1 className='text-3xl font-bold mb-6'>Edit Event</h1>
       {event && (
         <>
