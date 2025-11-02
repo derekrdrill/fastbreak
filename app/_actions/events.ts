@@ -17,12 +17,14 @@ import type { Event } from '@/app/_types';
 export async function createEvent({
   fullName,
   shortName,
+  description,
   sportType,
   date,
   venueNames,
 }: {
   fullName: string;
   shortName: string;
+  description: string;
   sportType: string;
   date: string;
   venueNames: string[];
@@ -50,6 +52,7 @@ export async function createEvent({
       .insert({
         fullName,
         shortName,
+        description,
         sportTypeId: sport.id,
         date,
         venueIds,
@@ -71,6 +74,7 @@ export async function createEvent({
       id: eventData.id,
       fullName: eventData.fullName,
       shortName: eventData.shortName,
+      description: eventData.description || '',
       sportTypeId: eventData.sportTypeId,
       date: eventData.date,
       venues: venueNamesStored,
@@ -84,6 +88,7 @@ export async function updateEvent({
   id,
   fullName,
   shortName,
+  description,
   sportTypeId,
   venues,
   date,
@@ -104,6 +109,7 @@ export async function updateEvent({
       .update({
         fullName,
         shortName,
+        description,
         sportTypeId,
         date,
         venueIds,
@@ -126,6 +132,7 @@ export async function updateEvent({
       id: eventData.id,
       fullName: eventData.fullName,
       shortName: eventData.shortName,
+      description: eventData.description || '',
       sportTypeId: eventData.sportTypeId,
       date: eventData.date,
       venues,
@@ -187,7 +194,9 @@ export async function getEvents(filters?: {
 
     // Apply filters if provided
     if (filters?.search) {
-      query = query.or(`fullName.ilike.%${filters.search}%,shortName.ilike.%${filters.search}%`);
+      query = query.or(
+        `fullName.ilike.%${filters.search}%,shortName.ilike.%${filters.search}%,description.ilike.%${filters.search}%`,
+      );
     }
 
     if (filters?.sportTypeId !== null && filters?.sportTypeId !== undefined) {
@@ -216,6 +225,7 @@ export async function getEvents(filters?: {
       id: event.id,
       fullName: event.fullName,
       shortName: event.shortName,
+      description: event.description || '',
       sportTypeId: event.sportTypeId,
       date: event.date,
       venues: (event.venueIds || []).map((id: number) => venueMap.get(id) || '').filter(Boolean),
@@ -252,6 +262,7 @@ export async function getEvent(eventId: number): Promise<DbResult<Event>> {
       id: eventData.id,
       fullName: eventData.fullName,
       shortName: eventData.shortName,
+      description: eventData.description || '',
       sportTypeId: eventData.sportTypeId,
       date: eventData.date,
       venues: (eventData.venueIds || [])

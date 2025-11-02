@@ -20,6 +20,7 @@ const sports = SPORTS.map(sport => sport.name) as [string, ...string[]];
 const formSchema = z.object({
   fullName: z.string().min(1, 'Event name is required'),
   shortName: z.string().min(1, 'Short name is required'),
+  description: z.string().optional(),
   sportType: z.enum(sports),
   date: z.string().min(1, 'Date is required'),
   venues: z.array(z.string()).min(1, 'At least one venue is required'),
@@ -40,6 +41,7 @@ export default function EventForm({ venues, event }: EventFormProps) {
       ? {
           fullName: event.fullName,
           shortName: event.shortName,
+          description: event.description || '',
           sportType: SPORTS.find(s => s.id === event.sportTypeId)?.name,
           date: new Date(event.date).toISOString().slice(0, 16),
           venues: Array.isArray(event.venues) ? event.venues : [event.venues],
@@ -47,6 +49,7 @@ export default function EventForm({ venues, event }: EventFormProps) {
       : {
           fullName: '',
           shortName: '',
+          description: '',
           sportType: undefined,
           date: '',
           venues: [''],
@@ -94,6 +97,7 @@ export default function EventForm({ venues, event }: EventFormProps) {
         id: event.id,
         fullName: values.fullName,
         shortName: values.shortName,
+        description: values.description || '',
         sportTypeId: sport.id,
         date: values.date,
         venues: values.venues,
@@ -103,6 +107,7 @@ export default function EventForm({ venues, event }: EventFormProps) {
       result = await createEvent({
         fullName: values.fullName,
         shortName: values.shortName,
+        description: values.description || '',
         sportType: values.sportType,
         date: values.date,
         venueNames: values.venues,
@@ -138,6 +143,11 @@ export default function EventForm({ venues, event }: EventFormProps) {
           name='shortName'
           label='Short Name'
           placeholder='Enter short name (e.g. LAL v BOS)'
+        />
+        <FormInput
+          name='description'
+          label='Description'
+          placeholder='Enter event description (optional)'
         />
         <FormSelect
           name='sportType'

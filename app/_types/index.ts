@@ -9,6 +9,7 @@ export interface EventDB {
   id: number;
   fullName: string;
   shortName: string;
+  description: string;
   sportTypeId: number;
   date: string;
   venueIds: number[];
@@ -19,6 +20,7 @@ export interface Event {
   id: number;
   fullName: string;
   shortName: string;
+  description?: string;
   sportTypeId: number;
   date: string;
   venues: string[];
