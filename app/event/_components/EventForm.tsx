@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { IoAdd, IoTrash } from 'react-icons/io5';
 import {
   Form,
   FormControl,
@@ -36,10 +37,9 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface EventFormProps {
   event?: Event;
-  onSubmit: (values: FormValues) => void;
 }
 
-export default function EventForm({ event, onSubmit }: EventFormProps) {
+export default function EventForm({ event }: EventFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: event
@@ -72,9 +72,14 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
     );
   };
 
+  const handleSubmit = (values: FormValues) => {
+    console.log('Event form submitted:', values);
+    // TODO: Handle event submission
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
         <FormField
           control={form.control}
           name='fullName'
@@ -144,7 +149,7 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
         <div>
           <label className='text-sm font-medium'>Venues</label>
           {venues.map((_, index) => (
-            <div key={index} className='flex gap-2 mt-2'>
+            <div key={index} className='flex gap-2 mt-2 items-start'>
               <FormField
                 control={form.control}
                 name={`venues.${index}`}
@@ -161,9 +166,11 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
                 <button
                   type='button'
                   onClick={() => removeVenue(index)}
-                  className='px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50'
+                  className='p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all duration-200 hover:shadow-md active:scale-95 flex items-center justify-center'
+                  aria-label='Remove venue'
+                  title='Remove venue'
                 >
-                  Remove
+                  <IoTrash className='w-5 h-5' />
                 </button>
               )}
             </div>
@@ -171,14 +178,16 @@ export default function EventForm({ event, onSubmit }: EventFormProps) {
           <button
             type='button'
             onClick={addVenue}
-            className='mt-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50'
+            className='mt-3 px-4 py-2 bg-blue-400 text-white rounded-md hover:bg-blue-600 transition-all duration-200 hover:shadow-md active:scale-95 flex items-center gap-2 font-medium'
+            aria-label='Add venue'
           >
+            <IoAdd className='w-5 h-5' />
             Add Venue
           </button>
         </div>
         <button
           type='submit'
-          className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700'
+          className='w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all duration-200 hover:shadow-lg active:scale-[0.99] font-medium'
         >
           {event ? 'Update Event' : 'Create Event'}
         </button>

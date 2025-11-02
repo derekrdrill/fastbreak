@@ -1,10 +1,12 @@
 'use client';
 
 import classNames from 'classnames';
+import { ReactNode } from 'react';
 
 export interface ButtonGroupOption<T = string> {
   label: string;
   value: T;
+  icon?: ReactNode;
 }
 
 interface ButtonGroupProps<T = string> {
@@ -33,7 +35,7 @@ function ButtonGroup<T = string>({ options, value, onChange, className }: Button
             type='button'
             onClick={() => onChange(option.value)}
             className={classNames(
-              'cursor-pointer px-4 py-2 text-sm font-medium transition-colors',
+              'cursor-pointer px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2',
               {
                 'rounded-l-md': isFirst,
                 'rounded-r-md': isLast,
@@ -43,6 +45,7 @@ function ButtonGroup<T = string>({ options, value, onChange, className }: Button
               },
             )}
           >
+            {option.icon && <span className='text-base'>{option.icon}</span>}
             {option.label}
           </button>
         );

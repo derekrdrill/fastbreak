@@ -1,5 +1,6 @@
 'use client';
 
+import { IoAdd, IoGrid, IoList } from 'react-icons/io5';
 import ButtonGroup from '@/app/_components/ButtonGroup/ButtonGroup';
 import { EventsList, SearchInput, SportFilter } from '@/app/dashboard/_components';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
@@ -21,8 +22,8 @@ export default function DashboardPage() {
           {hasHydrated && (
             <ButtonGroup
               options={[
-                { label: 'Card', value: 'card' },
-                { label: 'List', value: 'list' },
+                { label: 'Card', value: 'card', icon: <IoGrid /> },
+                { label: 'List', value: 'list', icon: <IoList /> },
               ]}
               value={view}
               onChange={setView}
@@ -30,8 +31,9 @@ export default function DashboardPage() {
           )}
           <a
             href='/event/new'
-            className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700'
+            className='px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all duration-200 hover:shadow-lg active:scale-95 flex items-center gap-2 font-medium'
           >
+            <IoAdd className='w-5 h-5' />
             Create Event
           </a>
         </div>
