@@ -1,6 +1,6 @@
 import { Event } from '@/app/_lib/types';
 import { getFormattedVenues } from '@/app/dashboard/_helpers/dashboard.helpers';
-import EventEditButton from '../EventEditButton/EventEditButton';
+import EventActions from '../EventActions/EventActions';
 
 function EventListItem({ id, date, fullName, shortName, venues }: Omit<Event, 'sportTypeId'>) {
   const formattedDate = new Date(date).toLocaleDateString();
@@ -17,7 +17,7 @@ function EventListItem({ id, date, fullName, shortName, venues }: Omit<Event, 's
           <span>{formattedDate}</span>
         </p>
       </div>
-      <EventEditButton eventId={id} />
+      <EventActions eventId={id} showDelete />
     </div>
   );
 }

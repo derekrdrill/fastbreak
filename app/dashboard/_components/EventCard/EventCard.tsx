@@ -1,6 +1,6 @@
 import { Event } from '@/app/_lib/types';
 import { getFormattedVenues } from '@/app/dashboard/_helpers/dashboard.helpers';
-import { EventEditButton } from '@/app/dashboard/_components';
+import { EventActions } from '@/app/dashboard/_components';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -24,7 +24,7 @@ function EventCard({ id, shortName, fullName, date, venues }: Omit<Event, 'sport
       <CardContent>
         <p className='text-sm text-gray-500'>{formattedVenues}</p>
         <p className='text-sm text-gray-500'>{formattedDate}</p>
-        <EventEditButton eventId={id} className='mt-4 w-full' />
+        <EventActions eventId={id} className='mt-4' showDelete />
       </CardContent>
     </Card>
   );

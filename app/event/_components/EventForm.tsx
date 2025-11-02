@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select';
 import { SPORTS } from '@/app/_constants/events';
 import { createEvent, updateEvent } from '@/app/_actions/events';
+import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import type { Event, Venue } from '@/app/_lib/types';
 
 const sports = SPORTS.map(sport => sport.name) as [string, ...string[]];
@@ -46,8 +47,6 @@ interface EventFormProps {
 
 export default function EventForm({ venues, event }: EventFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: event
@@ -66,8 +65,19 @@ export default function EventForm({ venues, event }: EventFormProps) {
           venues: [''],
         },
   });
-
   const venuesArray = form.watch('venues');
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const setSelectedPlan = useDashboardStore(state => state.setSelectedPlan);
+
+  const hasMoreThanOneVenue = venuesArray?.length && venuesArray.length > 1;
+  const submitButtonText = isSubmitting
+    ? event
+      ? 'Updating...'
+      : 'Creating...'
+    : event
+      ? 'Update Event'
+      : 'Create Event';
 
   const addVenue = () => {
     form.setValue('venues', [...venuesArray, '']);
@@ -121,6 +131,13 @@ export default function EventForm({ venues, event }: EventFormProps) {
       toast.error(result.error || `Failed to ${event ? 'update' : 'create'} event`);
     }
   };
+
+  useEffect(() => {
+    if (event) {
+      setSelectedPlan(event);
+      return () => setSelectedPlan(null);
+    }
+  }, [event, setSelectedPlan]);
 
   return (
     <Form {...form}>
@@ -214,7 +231,7 @@ export default function EventForm({ venues, event }: EventFormProps) {
                   </FormItem>
                 )}
               />
-              {venuesArray?.length && (
+              {hasMoreThanOneVenue && (
                 <button
                   type='button'
                   onClick={() => removeVenue(index)}
@@ -231,10 +248,10 @@ export default function EventForm({ venues, event }: EventFormProps) {
             type='button'
             onClick={addVenue}
             className='mt-3 px-4 py-2 bg-blue-400 text-white rounded-md hover:bg-blue-600 transition-all duration-200 hover:shadow-md active:scale-95 flex items-center gap-2 font-medium'
-            aria-label='Add venue'
+            aria-label='Add another venue'
           >
             <IoAdd className='w-5 h-5' />
-            Add Venue
+            Add another venue
           </button>
         </div>
         <button
@@ -242,13 +259,7 @@ export default function EventForm({ venues, event }: EventFormProps) {
           disabled={isSubmitting}
           className='w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg active:scale-[0.99] font-semibold'
         >
-          {isSubmitting
-            ? event
-              ? 'Updating...'
-              : 'Creating...'
-            : event
-              ? 'Update Event'
-              : 'Create Event'}
+          {submitButtonText}
         </button>
       </form>
     </Form>

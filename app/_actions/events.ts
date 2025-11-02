@@ -1,6 +1,11 @@
 'use server';
 
-import { getSupabaseClient, type DbResult } from '@/app/_lib/db-helpers';
+import {
+  getSupabaseClient,
+  resolveVenueIds,
+  getVenueMap,
+  type DbResult,
+} from '@/app/_lib/db-helpers';
 import type { Event } from '@/app/_lib/types';
 
 export async function createEvent({
@@ -65,7 +70,7 @@ export async function createEvent({
         shortName,
         sportTypeId: sport.id,
         date,
-        venueIds: venueIds.map(id => Number(id)),
+        venueIds,
       })
       .select()
       .single();
@@ -105,32 +110,11 @@ export async function updateEvent({
     const supabase = await getSupabaseClient();
 
     // Convert venue names to IDs (find or create each venue)
-    const venueIds: number[] = [];
-
-    for (const venueName of venues) {
-      const { data: existingVenue } = await supabase
-        .from('venues')
-        .select('id')
-        .ilike('name', venueName)
-        .single();
-
-      if (existingVenue) {
-        venueIds.push(existingVenue.id);
-      } else {
-        // Create new venue
-        const { data: newVenue, error: venueError } = await supabase
-          .from('venues')
-          .insert({ name: venueName })
-          .select('id')
-          .single();
-
-        if (venueError || !newVenue) {
-          return { success: false, error: 'Failed to create venue' };
-        }
-
-        venueIds.push(newVenue.id);
-      }
+    const venuesResult = await resolveVenueIds(venues);
+    if (!venuesResult.success || !venuesResult.data) {
+      return { success: false, error: venuesResult.error || 'Failed to resolve venues' };
     }
+    const { venueIds } = venuesResult.data;
 
     // Update event with venueIds array
     const { data: eventData, error } = await supabase
@@ -187,9 +171,7 @@ export async function getEvents(filters?: {
 
     // Apply filters if provided
     if (filters?.search) {
-      query = query.or(
-        `fullName.ilike.%${filters.search}%,shortName.ilike.%${filters.search}%`
-      );
+      query = query.or(`fullName.ilike.%${filters.search}%,shortName.ilike.%${filters.search}%`);
     }
 
     if (filters?.sportType) {
@@ -211,12 +193,7 @@ export async function getEvents(filters?: {
     }
 
     // Convert venueIds to venue names
-    const { data: allVenues } = await supabase.from('venues').select('id, name');
-
-    const venueMap = new Map<number, string>();
-    allVenues?.forEach(venue => {
-      venueMap.set(Number(venue.id), venue.name);
-    });
+    const venueMap = await getVenueMap();
 
     // Transform events to UI format
     const events: Event[] = eventsData.map(event => ({
@@ -225,7 +202,7 @@ export async function getEvents(filters?: {
       shortName: event.shortName,
       sportTypeId: event.sportTypeId,
       date: event.date,
-      venues: (event.venueIds || []).map(id => venueMap.get(id) || '').filter(Boolean),
+      venues: (event.venueIds || []).map((id: number) => venueMap.get(id) || '').filter(Boolean),
     }));
 
     return { success: true, data: events };
@@ -238,7 +215,43 @@ export async function getEvents(filters?: {
 }
 
 export async function getEvent(eventId: number): Promise<DbResult<Event>> {
-  // TODO: Fetch single event by ID from Supabase
-  // Return event data or error
-  return { success: false, error: 'Not implemented' };
+  try {
+    const supabase = await getSupabaseClient();
+
+    const { data: eventData, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (!eventData) {
+      return { success: false, error: 'Event not found' };
+    }
+
+    // Convert venueIds to venue names
+    const venueMap = await getVenueMap();
+
+    // Transform to UI format
+    const event: Event = {
+      id: eventData.id,
+      fullName: eventData.fullName,
+      shortName: eventData.shortName,
+      sportTypeId: eventData.sportTypeId,
+      date: eventData.date,
+      venues: (eventData.venueIds || [])
+        .map((id: number) => venueMap.get(id) || '')
+        .filter(Boolean),
+    };
+
+    return { success: true, data: event };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch event',
+    };
+  }
 }
