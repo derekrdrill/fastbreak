@@ -6,7 +6,10 @@ import { BackButton, AddDeleteButtons } from '@/app/_components';
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const [venuesResult, eventResult] = await Promise.all([getVenues(), getEvent(Number(id))]);
+  const [venuesResult, eventResult] = await Promise.all([
+    getVenues(),
+    getEvent({ eventId: Number(id) }),
+  ]);
 
   const venues = venuesResult.success ? venuesResult.data || [] : [];
   const event = eventResult.success ? eventResult.data || null : null;

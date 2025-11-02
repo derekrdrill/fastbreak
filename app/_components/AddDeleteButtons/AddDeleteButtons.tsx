@@ -37,7 +37,7 @@ function AddDeleteButtons({
     }
 
     setIsDeleting(true);
-    const result = await deleteEvent(eventId);
+    const result = await deleteEvent({ eventId });
     setIsDeleting(false);
 
     const successMessage = 'Event deleted successfully!';

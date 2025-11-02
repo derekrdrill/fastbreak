@@ -232,18 +232,16 @@ export async function deleteEvent({ eventId }: { eventId: number }): Promise<DbR
  * Returns events with venue IDs converted to venue names.
  *
  * @param params - Parameters object
- * @param params.filters - Optional filters object
- * @param params.filters.search - Optional search query to filter by event name or description
- * @param params.filters.sportTypeId - Optional sport type ID to filter by
+ * @param params.search - Optional search query to filter by event name or description
+ * @param params.sportTypeId - Optional sport type ID to filter by
  * @returns Result containing array of filtered events with venue names populated
  */
 export async function getEvents({
-  filters,
+  search,
+  sportTypeId,
 }: {
-  filters?: {
-    search?: string;
-    sportTypeId?: number | null;
-  };
+  search?: string;
+  sportTypeId?: number | null;
 }): Promise<DbResult<Event[]>> {
   return handleDbOperation({
     operation: async () => {
@@ -251,15 +249,15 @@ export async function getEvents({
 
       let query = supabase.from('events').select('*').order('date', { ascending: true });
 
-      if (filters?.search) {
+      if (search) {
         query = query.or(
-          `fullName.ilike.%${filters.search}%,shortName.ilike.%${filters.search}%,description.ilike.%${filters.search}%`,
+          `fullName.ilike.%${search}%,shortName.ilike.%${search}%,description.ilike.%${search}%`,
         );
       }
 
-      const hasSportTypeId = filters?.sportTypeId !== null && filters?.sportTypeId !== undefined;
+      const hasSportTypeId = sportTypeId !== null && sportTypeId !== undefined;
       if (hasSportTypeId) {
-        query = query.eq('sportTypeId', filters.sportTypeId);
+        query = query.eq('sportTypeId', sportTypeId);
       }
 
       const { data: eventsData, error } = await query;

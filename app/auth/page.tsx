@@ -16,8 +16,8 @@ function LoginPage() {
     const isSignupMode = !isLoginMode;
 
     const authResult = isLoginMode
-      ? await signIn(values.email, values.password)
-      : await signUp(values.email, values.password);
+      ? await signIn({ email: values.email, password: values.password })
+      : await signUp({ email: values.email, password: values.password });
 
     const hasSuccess = authResult.success && authResult.data;
     const errorMessage = authResult.error || `Failed to ${mode}`;
