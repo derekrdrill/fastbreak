@@ -66,9 +66,9 @@ function DashboardRoot({ initialEvents }: DashboardRootProps) {
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <div className='flex items-center justify-between mb-6'>
+      <div className='flex flex-col gap-4 justify-between mb-6 sm:flex-row sm:items-center'>
         <h1 className='text-3xl font-bold'>Event Dashboard</h1>
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-4 justify-between'>
           {hasHydrated && (
             <ButtonGroup
               options={[

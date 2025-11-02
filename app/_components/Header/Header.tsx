@@ -37,19 +37,19 @@ function Header() {
   }, []);
 
   return (
-    <header className='border-b mb-4 px-4 py-3'>
-      <div className='container mx-auto flex items-center justify-between'>
+    <header className='border-b mb-4 px-4 py-3 h-24 sm:h-auto'>
+      <div className='container mx-auto flex justify-between sm:items-center'>
         <Link href='/dashboard' className='text-xl font-bold'>
           FASTBREAK
         </Link>
-        <nav className='flex items-center gap-4'>
+        <div className='flex flex-col gap-2 items-end sm:flex-row sm:items-center sm:gap-4'>
           {user && <span className='text-sm text-gray-600'>{user.email}</span>}
           {user && (
             <Button variant='ghost' size='sm' onClick={handleLogout} className='text-sm'>
               Logout
             </Button>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );
