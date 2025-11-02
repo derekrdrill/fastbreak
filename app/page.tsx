@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getAuthenticatedSession } from '@/app/_actions/auth';
+import { getAuthenticatedSession } from '@/app/_actions';
 
 export default async function RootPage() {
   const result = await getAuthenticatedSession();

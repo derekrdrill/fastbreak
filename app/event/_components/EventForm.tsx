@@ -11,7 +11,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { FormInput, FormSelect, FormAutocomplete } from '@/app/_components';
 import { SPORTS } from '@/app/_constants/events';
-import { createEvent, updateEvent } from '@/app/_actions/events';
+import { createEvent, updateEvent } from '@/app/_actions';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import type { Event, Venue } from '@/app/_types';
 

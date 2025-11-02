@@ -1,5 +1,5 @@
 import DashboardRoot from './_components/DashboardRoot/DashboardRoot';
-import { getEvents } from '@/app/_actions/events';
+import { getEvents } from '@/app/_actions';
 
 interface DashboardPageProps {
   searchParams: Promise<{ search?: string; sport?: string }>;

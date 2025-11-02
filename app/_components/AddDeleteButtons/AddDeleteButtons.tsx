@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { deleteEvent } from '@/app/_actions/events';
+import { deleteEvent } from '@/app/_actions';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 
 interface AddDeleteButtonsProps {

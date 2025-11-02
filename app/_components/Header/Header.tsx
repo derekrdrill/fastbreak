@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { signOut, getAuthenticatedSession } from '@/app/_actions/auth';
+import { signOut, getAuthenticatedSession } from '@/app/_actions';
 import { Button } from '@/components/ui/button';
 import type { User } from '@/app/_types';
 

@@ -9,5 +9,5 @@ export {
   notFound,
   validationError,
   formatErrorMessage,
-} from './errors/errors';
-export { resolveVenueIds, getVenueMap } from './venues/venues';
+} from './errors/errors.helpers';
+export { resolveVenueIds, getVenueMap } from './venues/venues.helpers';

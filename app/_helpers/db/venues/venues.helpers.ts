@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '../client/client';
-import { handleDbOperation, createError, createSuccess } from '../errors/errors';
+import { handleDbOperation, createError, createSuccess } from '../errors/errors.helpers';
 import type { DbResult } from '@/app/_types';
 
 /**

@@ -1,4 +1,5 @@
 import { getFormattedVenues, getEventsBySport } from './dashboard.helpers';
+import type { Event } from '@/app/_types';
 
 describe('dashboard.helpers', () => {
   describe('getFormattedVenues', () => {
@@ -14,8 +15,38 @@ describe('dashboard.helpers', () => {
   });
 
   describe('getEventsBySport', () => {
+    const mockEvents: Event[] = [
+      {
+        id: 1,
+        fullName: 'Los Angeles Lakers vs Boston Celtics',
+        shortName: 'LAL v BOS',
+        description: 'Basketball game',
+        sportTypeId: 1,
+        date: '2024-01-15T19:00:00Z',
+        venues: ['Staples Center'],
+      },
+      {
+        id: 2,
+        fullName: 'New York Yankees vs Boston Red Sox',
+        shortName: 'NYY v BOS',
+        description: 'Baseball game',
+        sportTypeId: 2,
+        date: '2024-01-16T19:00:00Z',
+        venues: ['Yankee Stadium'],
+      },
+      {
+        id: 3,
+        fullName: 'Golden State Warriors vs Miami Heat',
+        shortName: 'GSW v MIA',
+        description: 'Basketball game',
+        sportTypeId: 1,
+        date: '2024-01-17T20:00:00Z',
+        venues: ['Chase Center'],
+      },
+    ];
+
     it('should return sections with sport and events properties', () => {
-      const result = getEventsBySport();
+      const result = getEventsBySport({ events: mockEvents });
 
       expect(Array.isArray(result)).toBe(true);
       result.forEach(section => {
@@ -25,46 +56,39 @@ describe('dashboard.helpers', () => {
       });
     });
 
-    it('should filter events by sportType matching sport id', () => {
-      const result = getEventsBySport();
+    it('should filter events by sportTypeId matching sport id', () => {
+      const result = getEventsBySport({ events: mockEvents });
 
       result.forEach(section => {
         section.events.forEach(event => {
-          expect(event.sportType).toBe(section.sport.id);
+          expect(event.sportTypeId).toBe(section.sport.id);
         });
       });
     });
 
     it('should only include sections with events', () => {
-      const result = getEventsBySport();
+      const result = getEventsBySport({ events: mockEvents });
 
       result.forEach(section => {
         expect(section.events.length).toBeGreaterThan(0);
       });
     });
 
-    it('should filter events by search query', () => {
-      const result = getEventsBySport({ searchQuery: 'Lakers' });
+    it('should return empty array when no events match any sport', () => {
+      const emptyEvents: Event[] = [];
+      const result = getEventsBySport({ events: emptyEvents });
 
-      const allEvents = result.flatMap(section => section.events);
-      expect(allEvents.length).toBeGreaterThan(0);
-      allEvents.forEach(event => {
-        const matchesSearch =
-          event.fullName.toLowerCase().includes('lakers') ||
-          event.shortName.toLowerCase().includes('lakers');
-        expect(matchesSearch).toBe(true);
-      });
+      expect(result).toEqual([]);
     });
 
-    it('should filter events by sport type', () => {
-      const result = getEventsBySport({ sportFilter: 2 });
+    it('should group multiple events by the same sport', () => {
+      const result = getEventsBySport({ events: mockEvents });
 
-      result.forEach(section => {
-        expect(section.sport.id).toBe(2);
-        section.events.forEach(event => {
-          expect(event.sportType).toBe(2);
-        });
-      });
+      const basketballSection = result.find(section => section.sport.id === 1);
+      expect(basketballSection).toBeDefined();
+      if (basketballSection) {
+        expect(basketballSection.events.length).toBe(2);
+      }
     });
   });
 });

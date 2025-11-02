@@ -1,5 +1,5 @@
 import EventForm from '../_components/EventForm';
-import { getVenues } from '@/app/_actions/venues';
+import { getVenues } from '@/app/_actions';
 import { BackButton } from '@/app/_components';
 
 export default async function NewEventPage() {

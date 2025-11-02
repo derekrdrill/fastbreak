@@ -1,6 +1,5 @@
 import EventForm from '@/app/event/_components/EventForm';
-import { getVenues } from '@/app/_actions/venues';
-import { getEvent } from '@/app/_actions/events';
+import { getVenues, getEvent } from '@/app/_actions';
 import { BackButton, AddDeleteButtons } from '@/app/_components';
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {

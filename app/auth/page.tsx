@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { signIn, signUp, signInWithGoogle } from '@/app/_actions/auth';
+import { signIn, signUp, signInWithGoogle } from '@/app/_actions';
 import { AuthForm } from './_components';
 
 function LoginPage() {
