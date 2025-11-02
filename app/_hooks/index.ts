@@ -1,2 +1,2 @@
-export { useResponsiveEngine } from './useResponsiveEngine';
+export { useResponsiveEngine } from './useResponsiveEngine/useResponsiveEngine';
 

@@ -1,12 +1,11 @@
 'use client';
 
 import classNames from 'classnames';
-import { ReactNode } from 'react';
 
 export interface ButtonGroupOption<T = string> {
   label: string;
   value: T;
-  icon?: ReactNode;
+  icon?: React.ReactNode;
 }
 
 interface ButtonGroupProps<T = string> {
@@ -45,7 +44,7 @@ function ButtonGroup<T = string>({ options, value, onChange, className }: Button
               },
             )}
           >
-            {option.icon && <span className='text-base'>{option.icon}</span>}
+            {option.icon}
             {option.label}
           </button>
         );
