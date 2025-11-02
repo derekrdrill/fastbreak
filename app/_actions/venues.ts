@@ -1,23 +1,25 @@
 'use server';
 
-import { getSupabaseClient, type DbResult } from '@/app/_lib/db-helpers';
-import type { Venue } from '@/app/_lib/types';
+import {
+  getSupabaseClient,
+  handleDbOperation,
+  handleSupabaseError,
+  createSuccess,
+  type DbResult,
+} from '@/app/_helpers/db';
+import type { Venue } from '@/app/_types';
 
 export async function getVenues(): Promise<DbResult<Venue[]>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     const { data, error } = await supabase.from('venues').select('*').order('name');
 
-    if (error) {
-      return { success: false, error: error.message };
+    const result = handleSupabaseError(data, error, 'Failed to fetch venues');
+    if (!result.success) {
+      return result;
     }
 
-    return { success: true, data: data || [] };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch venues',
-    };
-  }
+    return createSuccess(data || []);
+  }, 'Failed to fetch venues');
 }

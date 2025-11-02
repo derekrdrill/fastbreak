@@ -4,9 +4,15 @@ import {
   getSupabaseClient,
   resolveVenueIds,
   getVenueMap,
+  handleDbOperation,
+  handleSupabaseError,
+  createError,
+  createSuccess,
+  validationError,
+  notFound,
   type DbResult,
-} from '@/app/_lib/db-helpers';
-import type { Event } from '@/app/_lib/types';
+} from '@/app/_helpers/db';
+import type { Event } from '@/app/_types';
 
 export async function createEvent({
   fullName,
@@ -21,46 +27,22 @@ export async function createEvent({
   date: string;
   venueNames: string[];
 }): Promise<DbResult<Event>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     // Convert sport name to ID
     const { SPORTS } = await import('@/app/_constants/events');
     const sport = SPORTS.find(s => s.name === sportType);
     if (!sport) {
-      return { success: false, error: 'Invalid sport type' };
+      return validationError(`Invalid sport type: "${sportType}" is not recognized`);
     }
 
-    // Convert venue names to IDs (find or create each venue)
-    const venueIds: number[] = [];
-    const venueNamesStored: string[] = [];
-
-    for (const venueName of venueNames) {
-      const { data: existingVenue } = await supabase
-        .from('venues')
-        .select('id, name')
-        .ilike('name', venueName)
-        .single();
-
-      if (existingVenue) {
-        venueIds.push(Number(existingVenue.id));
-        venueNamesStored.push(existingVenue.name);
-      } else {
-        // Create new venue
-        const { data: newVenue, error: venueError } = await supabase
-          .from('venues')
-          .insert({ name: venueName })
-          .select('id, name')
-          .single();
-
-        if (venueError || !newVenue) {
-          return { success: false, error: 'Failed to create venue' };
-        }
-
-        venueIds.push(Number(newVenue.id));
-        venueNamesStored.push(newVenue.name);
-      }
+    // Convert venue names to IDs using helper
+    const venuesResult = await resolveVenueIds(venueNames);
+    if (!venuesResult.success || !venuesResult.data) {
+      return createError(venuesResult.error || 'Unable to process venue information');
     }
+    const { venueIds, venueNames: venueNamesStored } = venuesResult.data;
 
     // Create event with venueIds array
     const { data: eventData, error } = await supabase
@@ -75,8 +57,13 @@ export async function createEvent({
       .select()
       .single();
 
-    if (error) {
-      return { success: false, error: error.message };
+    const eventResult = handleSupabaseError(
+      eventData,
+      error,
+      'Unable to create event. Please try again or check your input.',
+    );
+    if (!eventResult.success) {
+      return eventResult;
     }
 
     // Return UI-friendly Event type with venue names
@@ -89,13 +76,8 @@ export async function createEvent({
       venues: venueNamesStored,
     };
 
-    return { success: true, data: event };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to create event',
-    };
-  }
+    return createSuccess(event);
+  }, 'Failed to create event');
 }
 
 export async function updateEvent({
@@ -106,13 +88,13 @@ export async function updateEvent({
   venues,
   date,
 }: Event): Promise<DbResult<Event>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
-    // Convert venue names to IDs (find or create each venue)
+    // Convert venue names to IDs using helper
     const venuesResult = await resolveVenueIds(venues);
     if (!venuesResult.success || !venuesResult.data) {
-      return { success: false, error: venuesResult.error || 'Failed to resolve venues' };
+      return createError(venuesResult.error || 'Unable to process venue information');
     }
     const { venueIds } = venuesResult.data;
 
@@ -130,8 +112,13 @@ export async function updateEvent({
       .select()
       .single();
 
-    if (error) {
-      return { success: false, error: error.message };
+    const eventResult = handleSupabaseError(
+      eventData,
+      error,
+      'Unable to update event. The event may not exist or you may not have permission.',
+    );
+    if (!eventResult.success) {
+      return eventResult;
     }
 
     // Return UI-friendly Event type with venue names
@@ -144,17 +131,12 @@ export async function updateEvent({
       venues,
     };
 
-    return { success: true, data: event };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to update event',
-    };
-  }
+    return createSuccess(event);
+  }, 'Failed to update event');
 }
 
 export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     // Check if event exists
@@ -165,11 +147,11 @@ export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
       .maybeSingle();
 
     if (findError) {
-      return { success: false, error: findError.message || 'Failed to check event existence' };
+      return createError('Unable to verify event exists');
     }
 
     if (!existingEvent) {
-      return { success: false, error: 'Event not found' };
+      return notFound('Event not found. It may have been deleted or does not exist.');
     }
 
     // Delete the event and verify deletion
@@ -180,31 +162,25 @@ export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
       .select();
 
     if (deleteError) {
-      return { success: false, error: deleteError.message || 'Failed to delete event' };
+      return createError(deleteError.message || 'Unable to delete event. Please try again.');
     }
 
     // Verify deletion succeeded
     if (!deletedData || deletedData.length === 0) {
-      return {
-        success: false,
-        error: 'Event deletion may have failed due to permissions. Please check RLS policies.',
-      };
+      return createError(
+        'Event could not be deleted. You may not have permission to delete this event.',
+      );
     }
 
-    return { success: true, data: null };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to delete event',
-    };
-  }
+    return createSuccess(null);
+  }, 'Failed to delete event');
 }
 
 export async function getEvents(filters?: {
   search?: string;
   sportTypeId?: number | null;
 }): Promise<DbResult<Event[]>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     let query = supabase.from('events').select('*').order('date', { ascending: true });
@@ -221,15 +197,19 @@ export async function getEvents(filters?: {
     const { data: eventsData, error } = await query;
 
     if (error) {
-      return { success: false, error: error.message };
+      return createError(error.message);
     }
 
     if (!eventsData || eventsData.length === 0) {
-      return { success: true, data: [] };
+      return createSuccess([]);
     }
 
     // Convert venueIds to venue names
-    const venueMap = await getVenueMap();
+    const venueMapResult = await getVenueMap();
+    if (!venueMapResult.success || !venueMapResult.data) {
+      return createError(venueMapResult.error || 'Unable to load venue information');
+    }
+    const venueMap = venueMapResult.data;
 
     // Transform events to UI format
     const events: Event[] = eventsData.map(event => ({
@@ -241,17 +221,12 @@ export async function getEvents(filters?: {
       venues: (event.venueIds || []).map((id: number) => venueMap.get(id) || '').filter(Boolean),
     }));
 
-    return { success: true, data: events };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch events',
-    };
-  }
+    return createSuccess(events);
+  }, 'Failed to fetch events');
 }
 
 export async function getEvent(eventId: number): Promise<DbResult<Event>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     const { data: eventData, error } = await supabase
@@ -260,16 +235,17 @@ export async function getEvent(eventId: number): Promise<DbResult<Event>> {
       .eq('id', eventId)
       .single();
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    if (!eventData) {
-      return { success: false, error: 'Event not found' };
+    const eventResult = handleSupabaseError(eventData, error, 'Event not found');
+    if (!eventResult.success || !eventData) {
+      return eventResult;
     }
 
     // Convert venueIds to venue names
-    const venueMap = await getVenueMap();
+    const venueMapResult = await getVenueMap();
+    if (!venueMapResult.success || !venueMapResult.data) {
+      return createError(venueMapResult.error || 'Unable to load venue information');
+    }
+    const venueMap = venueMapResult.data;
 
     // Transform to UI format
     const event: Event = {
@@ -283,11 +259,6 @@ export async function getEvent(eventId: number): Promise<DbResult<Event>> {
         .filter(Boolean),
     };
 
-    return { success: true, data: event };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch event',
-    };
-  }
+    return createSuccess(event);
+  }, 'Failed to fetch event');
 }

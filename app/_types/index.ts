@@ -32,6 +32,12 @@ export interface User {
 // UI types
 export type DashboardView = 'card' | 'list';
 
+export type DbResult<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+};
+
 export type SportType =
   | 'Soccer'
   | 'Basketball'

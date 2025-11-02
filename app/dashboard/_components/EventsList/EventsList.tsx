@@ -12,7 +12,7 @@ import { EventCard, EventListItem } from '@/app/dashboard/_components';
 import { getEventsBySport } from '@/app/dashboard/_helpers/dashboard.helpers';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import { useResponsiveEngine } from '@/app/_hooks';
-import type { Event } from '@/app/_lib/types';
+import type { Event } from '@/app/_types';
 
 interface EventsListProps {
   events: Event[];

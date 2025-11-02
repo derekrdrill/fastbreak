@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { signOut, getAuthenticatedSession } from '@/app/_actions/auth';
 import { Button } from '@/components/ui/button';
-import type { User } from '@/app/_lib/types';
+import type { User } from '@/app/_types';
 
 function Header() {
   const router = useRouter();

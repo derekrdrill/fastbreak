@@ -1,4 +1,4 @@
-import { Event } from '@/app/_lib/types';
+import { Event } from '@/app/_types';
 import { getFormattedVenues } from '@/app/dashboard/_helpers/dashboard.helpers';
 import AddDeleteButtons from '@/app/_components/AddDeleteButtons/AddDeleteButtons';
 

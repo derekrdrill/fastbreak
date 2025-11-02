@@ -13,7 +13,7 @@ import { FormInput, FormSelect, FormAutocomplete } from '@/app/_components';
 import { SPORTS } from '@/app/_constants/events';
 import { createEvent, updateEvent } from '@/app/_actions/events';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
-import type { Event, Venue } from '@/app/_lib/types';
+import type { Event, Venue } from '@/app/_types';
 
 const sports = SPORTS.map(sport => sport.name) as [string, ...string[]];
 

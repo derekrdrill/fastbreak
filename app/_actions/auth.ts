@@ -1,10 +1,16 @@
 'use server';
 
-import { getSupabaseClient, type DbResult } from '@/app/_lib/db-helpers';
-import type { User } from '@/app/_lib/types';
+import {
+  getSupabaseClient,
+  handleDbOperation,
+  createError,
+  createSuccess,
+  type DbResult,
+} from '@/app/_helpers/db';
+import type { User } from '@/app/_types';
 
 export async function signUp(email: string, password: string): Promise<DbResult<{ user: User }>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     const { data, error } = await supabase.auth.signUp({
@@ -16,20 +22,11 @@ export async function signUp(email: string, password: string): Promise<DbResult<
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      return createError(error.message);
     }
 
     if (!data.user) {
-      return { success: false, error: 'Failed to create user' };
-    }
-
-    const isEmailConfirmationRequired = data.user && !data.session;
-    if (isEmailConfirmationRequired) {
-      const user: User = {
-        id: data.user.id,
-        email: data.user.email || email,
-      };
-      return { success: true, data: { user } };
+      return createError('Failed to create user');
     }
 
     const user: User = {
@@ -37,17 +34,12 @@ export async function signUp(email: string, password: string): Promise<DbResult<
       email: data.user.email || email,
     };
 
-    return { success: true, data: { user } };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to sign up',
-    };
-  }
+    return createSuccess({ user });
+  }, 'Failed to sign up');
 }
 
 export async function signIn(email: string, password: string): Promise<DbResult<{ user: User }>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -56,11 +48,11 @@ export async function signIn(email: string, password: string): Promise<DbResult<
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      return createError(error.message);
     }
 
     if (!data.user) {
-      return { success: false, error: 'Failed to sign in' };
+      return createError('Failed to sign in');
     }
 
     const user: User = {
@@ -68,17 +60,12 @@ export async function signIn(email: string, password: string): Promise<DbResult<
       email: data.user.email || email,
     };
 
-    return { success: true, data: { user } };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to sign in',
-    };
-  }
+    return createSuccess({ user });
+  }, 'Failed to sign in');
 }
 
 export async function signInWithGoogle(): Promise<DbResult<{ url: string }>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -90,43 +77,33 @@ export async function signInWithGoogle(): Promise<DbResult<{ url: string }>> {
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      return createError(error.message);
     }
 
     if (!data.url) {
-      return { success: false, error: 'Failed to generate OAuth URL' };
+      return createError('Failed to generate OAuth URL');
     }
 
-    return { success: true, data: { url: data.url } };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to initiate Google sign in',
-    };
-  }
+    return createSuccess({ url: data.url });
+  }, 'Failed to initiate Google sign in');
 }
 
 export async function signOut(): Promise<DbResult<null>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      return { success: false, error: error.message };
+      return createError(error.message);
     }
 
-    return { success: true, data: null };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to sign out',
-    };
-  }
+    return createSuccess(null);
+  }, 'Failed to sign out');
 }
 
 export async function getAuthenticatedSession(): Promise<DbResult<{ user: User } | null>> {
-  try {
+  return handleDbOperation(async () => {
     const supabase = await getSupabaseClient();
 
     const {
@@ -134,12 +111,9 @@ export async function getAuthenticatedSession(): Promise<DbResult<{ user: User }
       error,
     } = await supabase.auth.getUser();
 
-    if (error) {
-      return { success: true, data: null };
-    }
-
-    if (!user || !user.email) {
-      return { success: true, data: null };
+    // No error means we checked - user might not be authenticated, which is fine
+    if (error || !user || !user.email) {
+      return createSuccess(null);
     }
 
     const userData: User = {
@@ -147,11 +121,6 @@ export async function getAuthenticatedSession(): Promise<DbResult<{ user: User }
       email: user.email,
     };
 
-    return { success: true, data: { user: userData } };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to get session',
-    };
-  }
+    return createSuccess({ user: userData });
+  }, 'Failed to get session');
 }

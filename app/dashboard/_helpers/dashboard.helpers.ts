@@ -1,5 +1,5 @@
 import { SPORTS } from '@/app/_constants/events';
-import type { Event } from '@/app/_lib/types';
+import type { Event } from '@/app/_types';
 
 function getFormattedVenues({ venues }: { venues: string[] | string }) {
   return Array.isArray(venues) ? venues.join(', ') : venues;

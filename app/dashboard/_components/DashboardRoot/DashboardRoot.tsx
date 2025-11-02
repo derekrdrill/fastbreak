@@ -7,7 +7,7 @@ import { IoAdd, IoGrid, IoList } from 'react-icons/io5';
 import { ButtonGroup } from '@/app/_components';
 import { EventsList, SearchInput, SportFilter, EventsShimmer } from '@/app/dashboard/_components';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
-import type { Event } from '@/app/_lib/types';
+import type { Event } from '@/app/_types';
 import { Button } from '@/components/ui/button';
 
 interface DashboardRootProps {

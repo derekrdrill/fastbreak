@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import type { DashboardView, Event } from '@/app/_lib/types';
+import type { DashboardView, Event } from '@/app/_types';
 
 interface DashboardState {
   _hasHydrated: boolean;
