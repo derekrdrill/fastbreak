@@ -1,8 +1,13 @@
 import { redirect } from 'next/navigation';
+import { getAuthenticatedSession } from '@/app/_actions/auth';
 
-export default function RootPage() {
-  // TODO: Check auth status
-  // If authenticated, redirect to dashboard
-  // If not authenticated, redirect to login
-  redirect('/dashboard');
+export default async function RootPage() {
+  const result = await getAuthenticatedSession();
+  const isAuthenticatedSession = result.success && result.data;
+
+  if (isAuthenticatedSession) {
+    redirect('/dashboard');
+  } else {
+    redirect('/auth');
+  }
 }

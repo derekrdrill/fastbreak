@@ -20,6 +20,7 @@ interface FormAutocompleteProps<
   placeholder?: string;
   control?: Control<TFieldValues>;
   className?: string;
+  required?: boolean;
 }
 
 function FormAutocomplete<
@@ -32,6 +33,7 @@ function FormAutocomplete<
   placeholder = 'Select or type',
   control,
   className,
+  required,
 }: FormAutocompleteProps<TFieldValues, TName>) {
   const formContext = useFormContext<TFieldValues>();
   const formControl = control || formContext.control;
@@ -63,7 +65,7 @@ function FormAutocomplete<
     <FormField
       control={formControl}
       name={name}
-      render={({ field }) => {
+      render={({ field, fieldState }) => {
         const getOptionLabel = (value: string) => {
           return options.find(opt => opt.value === value)?.label || value;
         };
@@ -95,7 +97,7 @@ function FormAutocomplete<
 
         return (
           <FormItem className={`relative ${className || ''}`}>
-            {label && <FormLabel>{label}</FormLabel>}
+            {label && <FormLabel required={required}>{label}</FormLabel>}
             <FormControl>
               <Input
                 ref={inputRef}
@@ -104,6 +106,7 @@ function FormAutocomplete<
                 onFocus={handleInputFocus}
                 placeholder={placeholder}
                 autoComplete='off'
+                className={fieldState.error ? 'border-red-500 focus-visible:ring-red-500' : ''}
               />
             </FormControl>
             {isOpen && filteredOptions.length > 0 && (

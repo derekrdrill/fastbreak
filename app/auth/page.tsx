@@ -1,37 +1,44 @@
 'use client';
 
-import { useAuthStore } from '@/app/_store';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { signIn, signUp, signInWithGoogle } from '@/app/_actions/auth';
 import { AuthForm } from './_components';
 
 export default function LoginPage() {
-  const setAuth = useAuthStore(state => state.setAuth);
+  const router = useRouter();
 
   const handleSubmit = async (
     values: { email: string; password: string; confirmPassword?: string },
     mode: 'login' | 'signup',
   ) => {
-    console.log(`${mode} attempt:`, values);
-    // TODO: Implement auth with server action
-    // if (mode === 'login') {
-    //   const result = await signIn(values.email, values.password)
-    //   if (result.success) {
-    //     setAuth(true, result.user)
-    //   }
-    // } else {
-    //   const result = await signUp(values.email, values.password)
-    //   if (result.success) {
-    //     setAuth(true, result.user)
-    //   }
-    // }
+    const result =
+      mode === 'login'
+        ? await signIn(values.email, values.password)
+        : await signUp(values.email, values.password);
+
+    if (result.success && result.data) {
+      if (mode === 'signup') {
+        toast.success(
+          'Account created successfully! Please check your email to confirm your account.',
+        );
+      } else {
+        toast.success('Signed in successfully!');
+        router.push('/dashboard');
+      }
+    } else {
+      toast.error(result.error || `Failed to ${mode}`);
+    }
   };
 
   const handleGoogleAuth = async () => {
-    console.log('Google auth attempt');
-    // TODO: Implement Google OAuth
-    // const result = await signInWithGoogle()
-    // if (result.success) {
-    //   setAuth(true, result.user)
-    // }
+    const result = await signInWithGoogle();
+
+    if (result.success && result.data) {
+      window.location.href = result.data.url;
+    } else {
+      toast.error(result.error || 'Failed to initiate Google sign in');
+    }
   };
 
   return (

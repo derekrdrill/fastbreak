@@ -25,6 +25,7 @@ interface FormSelectProps<
   placeholder?: string;
   control?: Control<TFieldValues>;
   className?: string;
+  required?: boolean;
 }
 
 function FormSelect<
@@ -37,6 +38,7 @@ function FormSelect<
   placeholder = 'Select an option',
   control,
   className,
+  required,
 }: FormSelectProps<TFieldValues, TName>) {
   const formContext = useFormContext<TFieldValues>();
   const formControl = control || formContext.control;
@@ -45,12 +47,14 @@ function FormSelect<
     <FormField
       control={formControl}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
+          {label && <FormLabel required={required}>{label}</FormLabel>}
           <Select onValueChange={field.onChange} value={field.value}>
             <FormControl>
-              <SelectTrigger>
+              <SelectTrigger
+                className={fieldState.error ? 'border-red-500 focus:ring-red-500' : ''}
+              >
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>

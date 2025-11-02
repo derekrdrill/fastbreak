@@ -87,17 +87,20 @@ FormItem.displayName = 'FormItem';
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField();
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & { required?: boolean }
+>(({ className, required, children, ...props }, ref) => {
+  const { formItemId, error } = useFormField();
 
   return (
-    <Label
-      ref={ref}
-      className={classNames(error && 'text-destructive', className)}
-      htmlFor={formItemId}
-      {...props}
-    />
+    <div className='flex items-center justify-between'>
+      <Label ref={ref} className={className} htmlFor={formItemId} {...props}>
+        {children}
+        {required && <span className='text-red-500 ml-1'>*</span>}
+      </Label>
+      {error && (
+        <span className='text-sm font-medium text-red-500'>{error.message}</span>
+      )}
+    </div>
   );
 });
 FormLabel.displayName = 'FormLabel';
@@ -124,23 +127,10 @@ const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? '') : children;
-
-  if (!body) {
-    return null;
-  }
-
-  return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={classNames('text-sm font-medium text-destructive', className)}
-      {...props}
-    >
-      {body}
-    </p>
-  );
+  const { formMessageId } = useFormField();
+  
+  // Error messages are now shown in FormLabel, so this component is hidden
+  return null;
 });
 FormMessage.displayName = 'FormMessage';
 

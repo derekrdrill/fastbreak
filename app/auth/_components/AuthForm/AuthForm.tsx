@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { HiEye, HiEyeSlash } from 'react-icons/hi2';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { FormInput } from '@/app/_components';
@@ -38,12 +39,14 @@ type AuthMode = 'login' | 'signup';
 type AuthFormValues = z.infer<typeof authSchema>;
 
 interface AuthFormProps {
-  onSubmit: (values: AuthFormValues, mode: AuthMode) => void;
+  onSubmit: (values: AuthFormValues, mode: AuthMode) => void | Promise<void>;
   onGoogleAuth: () => void;
 }
 
 export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
   const [mode, setMode] = useState<AuthMode>('login');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
@@ -60,11 +63,13 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
     if (newMode !== mode) {
       setMode(newMode);
       form.reset();
+      setShowPassword(false);
+      setShowConfirmPassword(false);
     }
   };
 
-  const handleSubmit = (values: AuthFormValues) => {
-    onSubmit(values, mode);
+  const handleSubmit = async (values: AuthFormValues) => {
+    await onSubmit(values, mode);
   };
 
   return (
@@ -108,19 +113,43 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
-          <FormInput name='email' label='Email' type='email' placeholder='Enter your email' />
+          <FormInput name='email' label='Email' type='email' placeholder='Enter your email' required />
           <FormInput
             name='password'
             label='Password'
-            type='password'
+            type={showPassword ? 'text' : 'password'}
             placeholder={isLogin ? 'Enter your password' : 'Create a password'}
+            required
+            endIcon={
+              <button
+                type='button'
+                onClick={() => setShowPassword(!showPassword)}
+                className='text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer'
+              >
+                {showPassword ? <HiEyeSlash className='h-5 w-5' /> : <HiEye className='h-5 w-5' />}
+              </button>
+            }
           />
           {!isLogin && (
             <FormInput
               name='confirmPassword'
               label='Confirm Password'
-              type='password'
+              type={showConfirmPassword ? 'text' : 'password'}
               placeholder='Confirm your password'
+              required
+              endIcon={
+                <button
+                  type='button'
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className='text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer'
+                >
+                  {showConfirmPassword ? (
+                    <HiEyeSlash className='h-5 w-5' />
+                  ) : (
+                    <HiEye className='h-5 w-5' />
+                  )}
+                </button>
+              }
             />
           )}
           <Button

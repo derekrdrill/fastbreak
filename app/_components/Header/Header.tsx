@@ -1,15 +1,40 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuthStore } from '@/app/_store';
-// TODO: Add proper logout functionality
+import { toast } from 'sonner';
+import { signOut, getAuthenticatedSession } from '@/app/_actions/auth';
+import { Button } from '@/components/ui/button';
+import type { User } from '@/app/_lib/types';
 
 function Header() {
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-  const user = useAuthStore(state => state.user);
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
 
-  // TODO: Get auth status from server component on initial load
-  // TODO: Make logout actually work
+  async function handleLogout() {
+    const result = await signOut();
+
+    if (result.success) {
+      setUser(null);
+      toast.success('Signed out successfully');
+      router.push('/auth');
+    } else {
+      toast.error(result.error || 'Failed to sign out');
+    }
+  }
+
+  useEffect(() => {
+    const loadSession = async () => {
+      const result = await getAuthenticatedSession();
+
+      if (result.success && result.data) {
+        setUser(result.data.user);
+      }
+    };
+
+    loadSession();
+  }, []);
 
   return (
     <header className='border-b mb-4 px-4 py-3'>
@@ -18,11 +43,11 @@ function Header() {
           FASTBREAK
         </Link>
         <nav className='flex items-center gap-4'>
-          {isAuthenticated && user && <span className='text-sm text-gray-600'>{user.email}</span>}
-          {isAuthenticated && (
-            <Link href='/logout' className='text-sm hover:underline'>
+          {user && <span className='text-sm text-gray-600'>{user.email}</span>}
+          {user && (
+            <Button variant='ghost' size='sm' onClick={handleLogout} className='text-sm'>
               Logout
-            </Link>
+            </Button>
           )}
         </nav>
       </div>
