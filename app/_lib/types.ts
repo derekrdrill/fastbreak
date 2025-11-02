@@ -13,6 +13,12 @@ export interface Event {
   venues: string | string[];
 }
 
+export interface User {
+  id: string;
+  email: string;
+  // TODO: Add more user fields as needed (name, avatar, etc.)
+}
+
 export type DashboardView = 'card' | 'list';
 
 export type SportType =
