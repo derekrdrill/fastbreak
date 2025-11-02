@@ -5,16 +5,15 @@
 // Form types
 
 export interface Event {
-  id: string;
-  name: string;
-  sportType: string;
+  id: number;
+  fullName: string;
+  shortName: string;
+  sportType: SportType;
   date: Date;
-  description: string;
-  venues: string[];
-  createdAt?: Date;
-  updatedAt?: Date;
-  userId?: string;
+  venues: string | string[];
 }
+
+export type DashboardView = 'card' | 'list';
 
 export type SportType =
   | 'Soccer'
@@ -25,4 +24,3 @@ export type SportType =
   | 'Hockey'
   | 'Volleyball'
   | 'Other';
-
