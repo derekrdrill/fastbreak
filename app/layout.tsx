@@ -1,7 +1,7 @@
 import './_styles/globals.css';
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
-import Header from './_components/Header/Header';
+import { Header } from '@/app/_components';
 
 export const metadata: Metadata = {
   title: 'Fastbreak - Sports Event Management',

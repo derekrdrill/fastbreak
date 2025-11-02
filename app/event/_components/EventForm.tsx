@@ -7,22 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Form } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { FormInput, FormSelect, FormAutocomplete } from '@/app/_components';
 import { SPORTS } from '@/app/_constants/events';
 import { createEvent, updateEvent } from '@/app/_actions/events';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
@@ -142,125 +129,65 @@ export default function EventForm({ venues, event }: EventFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
-        <FormField
-          control={form.control}
+        <FormInput
           name='fullName'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='Enter full name (e.g. Los Angeles Lakers vs. Boston Celtics)'
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label='Full Name'
+          placeholder='Enter full name (e.g. Los Angeles Lakers vs. Boston Celtics)'
         />
-        <FormField
-          control={form.control}
+        <FormInput
           name='shortName'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Short Name</FormLabel>
-              <FormControl>
-                <Input placeholder='Enter short name (e.g. LAL v BOS)' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label='Short Name'
+          placeholder='Enter short name (e.g. LAL v BOS)'
         />
-        <FormField
-          control={form.control}
+        <FormSelect
           name='sportType'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sport Type</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select sport type' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {sports.map(sport => (
-                    <SelectItem key={sport} value={sport}>
-                      {sport}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+          label='Sport Type'
+          options={sports.map(sport => ({ label: sport, value: sport }))}
+          placeholder='Select sport type'
         />
-        <FormField
-          control={form.control}
-          name='date'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date & Time</FormLabel>
-              <FormControl>
-                <Input type='datetime-local' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <FormInput name='date' label='Date & Time' type='datetime-local' />
         <div>
-          <label className='text-sm font-medium'>Venues</label>
+          <label className='text-sm font-medium mb-2 block'>Venues</label>
           {venuesArray?.map((_, index) => (
             <div key={index} className='flex gap-2 mt-2 items-start'>
-              <FormField
-                control={form.control}
+              <FormAutocomplete<FormValues>
                 name={`venues.${index}`}
-                render={({ field }) => (
-                  <FormItem className='flex-1'>
-                    <FormControl>
-                      <div className='relative'>
-                        <Input placeholder='Enter venue' list='venues-list' {...field} />
-                        <datalist id='venues-list'>
-                          {venues?.map(venue => (
-                            <option key={venue.id} value={venue.name} />
-                          ))}
-                        </datalist>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                options={venues?.map(venue => ({ label: venue.name, value: venue.name })) || []}
+                placeholder='Select or type venue'
+                className='flex-1'
               />
               {hasMoreThanOneVenue && (
-                <button
+                <Button
                   type='button'
+                  variant='destructive'
+                  size='icon'
                   onClick={() => removeVenue(index)}
-                  className='p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all duration-200 hover:shadow-md active:scale-95 flex items-center justify-center'
+                  className='bg-red-500 hover:bg-red-600'
                   aria-label='Remove venue'
                   title='Remove venue'
                 >
                   <IoTrash className='w-5 h-5' />
-                </button>
+                </Button>
               )}
             </div>
           ))}
-          <button
+          <Button
             type='button'
             onClick={addVenue}
-            className='mt-3 px-4 py-2 bg-blue-400 text-white rounded-md hover:bg-blue-600 transition-all duration-200 hover:shadow-md active:scale-95 flex items-center gap-2 font-medium'
+            className='mt-3 bg-blue-400 hover:bg-blue-500 text-white'
             aria-label='Add another venue'
           >
             <IoAdd className='w-5 h-5' />
             Add another venue
-          </button>
+          </Button>
         </div>
-        <button
+        <Button
           type='submit'
           disabled={isSubmitting}
-          className='w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg active:scale-[0.99] font-semibold'
+          className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm hover:shadow-lg transition-all duration-200'
         >
           {submitButtonText}
-        </button>
+        </Button>
       </form>
     </Form>
   );

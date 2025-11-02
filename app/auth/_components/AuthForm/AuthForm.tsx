@@ -4,16 +4,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
+import { FormInput } from '@/app/_components';
 
 const authSchema = z
   .object({
@@ -80,10 +73,11 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
         {/* <h1 className='text-xl font-bold mb-6'>{isLogin ? 'Welcome back' : 'Create an account'}</h1> */}
 
         <div className='inline-flex gap-8 border-b border-gray-200 dark:border-gray-800'>
-          <button
+          <Button
             type='button'
+            variant='ghost'
             onClick={() => handleModeChange('login')}
-            className={`pb-3 px-1 text-sm font-medium transition-colors relative cursor-pointer ${
+            className={`pb-3 px-1 h-auto text-sm font-medium transition-colors relative rounded-none border-0 ${
               isLogin
                 ? 'text-foreground'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
@@ -91,11 +85,12 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
           >
             Sign In
             {isLogin && <span className='absolute bottom-0 left-0 right-0 h-0.5 bg-foreground' />}
-          </button>
-          <button
+          </Button>
+          <Button
             type='button'
+            variant='ghost'
             onClick={() => handleModeChange('signup')}
-            className={`pb-3 px-1 text-sm font-medium transition-colors relative cursor-pointer ${
+            className={`pb-3 px-1 h-auto text-sm font-medium transition-colors relative rounded-none border-0 ${
               !isLogin
                 ? 'text-foreground'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
@@ -103,7 +98,7 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
           >
             Sign Up
             {!isLogin && <span className='absolute bottom-0 left-0 right-0 h-0.5 bg-foreground' />}
-          </button>
+          </Button>
         </div>
 
         <p className='text-gray-600 dark:text-gray-400 mt-6'>
@@ -113,49 +108,19 @@ export default function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
-          <FormField
-            control={form.control}
-            name='email'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type='email' placeholder='Enter your email' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
+          <FormInput name='email' label='Email' type='email' placeholder='Enter your email' />
+          <FormInput
             name='password'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type='password'
-                    placeholder={isLogin ? 'Enter your password' : 'Create a password'}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label='Password'
+            type='password'
+            placeholder={isLogin ? 'Enter your password' : 'Create a password'}
           />
           {!isLogin && (
-            <FormField
-              control={form.control}
+            <FormInput
               name='confirmPassword'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input type='password' placeholder='Confirm your password' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label='Confirm Password'
+              type='password'
+              placeholder='Confirm your password'
             />
           )}
           <Button

@@ -1,6 +1,7 @@
 'use client';
 
 import classNames from 'classnames';
+import { Button } from '@/components/ui/button';
 
 export interface ButtonGroupOption<T = string> {
   label: string;
@@ -29,24 +30,25 @@ function ButtonGroup<T = string>({ options, value, onChange, className }: Button
         const isSelected = value === option.value;
 
         return (
-          <button
+          <Button
             key={index}
             type='button'
             onClick={() => onChange(option.value)}
+            variant={isSelected ? 'default' : 'outline'}
             className={classNames(
-              'cursor-pointer px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2',
+              'rounded-none border-0',
               {
                 'rounded-l-md': isFirst,
                 'rounded-r-md': isLast,
                 'border-l border-gray-300': !isFirst,
-                'bg-purple-600 text-white': isSelected,
+                'bg-purple-600 text-white hover:bg-purple-700': isSelected,
                 'bg-white text-gray-700 hover:bg-purple-100': !isSelected,
               },
             )}
           >
             {option.icon}
             {option.label}
-          </button>
+          </Button>
         );
       })}
     </div>

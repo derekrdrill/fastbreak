@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { IoAdd, IoGrid, IoList } from 'react-icons/io5';
-import ButtonGroup from '@/app/_components/ButtonGroup/ButtonGroup';
+import { ButtonGroup } from '@/app/_components';
 import { EventsList, SearchInput, SportFilter } from '@/app/dashboard/_components';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import type { Event } from '@/app/_lib/types';
+import { Button } from '@/components/ui/button';
 
 interface DashboardClientProps {
   initialEvents: Event[];
@@ -40,13 +42,12 @@ export default function DashboardClient({ initialEvents }: DashboardClientProps)
               onChange={setView}
             />
           )}
-          <a
-            href='/event/new'
-            className='px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all duration-200 hover:shadow-lg active:scale-95 flex items-center gap-2 font-medium'
-          >
-            <IoAdd className='w-5 h-5' />
-            Create Event
-          </a>
+          <Button asChild className='bg-blue-500 hover:bg-blue-600 hover:shadow-md'>
+            <Link href='/event/new'>
+              <IoAdd className='w-5 h-5' />
+              Create Event
+            </Link>
+          </Button>
         </div>
       </div>
 
