@@ -46,10 +46,12 @@ function FormAutocomplete<
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const hasDropdown = Boolean(dropdownRef.current);
-      const clickedInDropdown = hasDropdown && dropdownRef.current.contains(event.target as Node);
-      const hasInput = Boolean(inputRef.current);
-      const clickedInInput = hasInput && inputRef.current.contains(event.target as Node);
+      const dropdown = dropdownRef.current;
+      const input = inputRef.current;
+      const hasDropdown = Boolean(dropdown);
+      const hasInput = Boolean(input);
+      const clickedInDropdown = hasDropdown && dropdown?.contains(event.target as Node);
+      const clickedInInput = hasInput && input?.contains(event.target as Node);
       const clickedOutside = hasDropdown && hasInput && !clickedInDropdown && !clickedInInput;
 
       if (clickedOutside) {
