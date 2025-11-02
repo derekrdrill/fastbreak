@@ -110,7 +110,7 @@ export async function signInWithGoogle(): Promise<DbResult<{ url: string }>> {
     operation: async () => {
       const supabase = await getSupabaseClient();
 
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
