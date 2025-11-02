@@ -1,9 +1,20 @@
-import DashboardClient from './_components/DashboardClient/DashboardClient';
+import DashboardRoot from './_components/DashboardRoot/DashboardRoot';
 import { getEvents } from '@/app/_actions/events';
 
-export default async function DashboardPage() {
-  const result = await getEvents();
+interface DashboardPageProps {
+  searchParams: Promise<{ search?: string; sport?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const params = await searchParams;
+  const search = params.search || '';
+  const sportFilter = params.sport ? Number(params.sport) : null;
+
+  const result = await getEvents({
+    search: search || undefined,
+    sportTypeId: sportFilter,
+  });
   const initialEvents = result.success ? result.data || [] : [];
 
-  return <DashboardClient initialEvents={initialEvents} />;
+  return <DashboardRoot initialEvents={initialEvents} />;
 }

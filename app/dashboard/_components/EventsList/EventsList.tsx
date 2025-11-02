@@ -12,14 +12,16 @@ import { EventCard, EventListItem } from '@/app/dashboard/_components';
 import { getEventsBySport } from '@/app/dashboard/_helpers/dashboard.helpers';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import { useResponsiveEngine } from '@/app/_hooks';
+import type { Event } from '@/app/_lib/types';
 
-function EventsList() {
+interface EventsListProps {
+  events: Event[];
+}
+
+function EventsList({ events }: EventsListProps) {
   const { isMobile, isTablet } = useResponsiveEngine();
   const view = useDashboardStore(state => state.view);
-  const events = useDashboardStore(state => state.events);
-  const searchQuery = useDashboardStore(state => state.searchQuery);
-  const sportFilter = useDashboardStore(state => state.sportFilter);
-  const eventsBySport = getEventsBySport({ events, searchQuery, sportFilter });
+  const eventsBySport = getEventsBySport({ events });
 
   const isCardView = view === 'card';
   const isListView = view === 'list';

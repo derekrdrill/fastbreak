@@ -202,7 +202,7 @@ export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
 
 export async function getEvents(filters?: {
   search?: string;
-  sportType?: string;
+  sportTypeId?: number | null;
 }): Promise<DbResult<Event[]>> {
   try {
     const supabase = await getSupabaseClient();
@@ -214,12 +214,8 @@ export async function getEvents(filters?: {
       query = query.or(`fullName.ilike.%${filters.search}%,shortName.ilike.%${filters.search}%`);
     }
 
-    if (filters?.sportType) {
-      const { SPORTS } = await import('@/app/_constants/events');
-      const sport = SPORTS.find(s => s.name === filters.sportType);
-      if (sport) {
-        query = query.eq('sportTypeId', sport.id);
-      }
+    if (filters?.sportTypeId !== null && filters?.sportTypeId !== undefined) {
+      query = query.eq('sportTypeId', filters.sportTypeId);
     }
 
     const { data: eventsData, error } = await query;

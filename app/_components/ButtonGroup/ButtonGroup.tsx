@@ -14,9 +14,16 @@ interface ButtonGroupProps<T = string> {
   onChange: (value: T) => void;
   options: ButtonGroupOption<T>[];
   value: T;
+  disabled?: boolean;
 }
 
-function ButtonGroup<T = string>({ options, value, onChange, className }: ButtonGroupProps<T>) {
+function ButtonGroup<T = string>({
+  options,
+  value,
+  onChange,
+  className,
+  disabled,
+}: ButtonGroupProps<T>) {
   return (
     <div
       className={classNames(
@@ -43,6 +50,7 @@ function ButtonGroup<T = string>({ options, value, onChange, className }: Button
             size='sm'
             type='button'
             variant={isSelected ? 'default' : 'outline'}
+            disabled={disabled}
           >
             {option.icon}
             {option.label}
