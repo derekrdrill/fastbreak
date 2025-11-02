@@ -1,8 +1,12 @@
 import Link from 'next/link';
 import { IoArrowBack } from 'react-icons/io5';
 import EventForm from '../_components/EventForm';
+import { getVenues } from '@/app/_actions/venues';
 
-export default function NewEventPage() {
+export default async function NewEventPage() {
+  const result = await getVenues();
+  const venues = result.success ? result.data || [] : [];
+
   return (
     <div className='container mx-auto px-4 py-8 max-w-2xl'>
       <Link
@@ -13,7 +17,7 @@ export default function NewEventPage() {
         Back to Dashboard
       </Link>
       <h1 className='text-3xl font-bold mb-6'>Create New Event</h1>
-      <EventForm />
+      <EventForm venues={venues} />
     </div>
   );
 }

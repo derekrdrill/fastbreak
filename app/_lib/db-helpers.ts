@@ -1,9 +1,25 @@
-// TODO: Create generic helper(s) for type safety and consistent error handling
-// This file should contain reusable functions for Supabase database operations
-// Follow Fastbreak's pattern: Actions over API Routes
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
-// Example structure:
-// - createServerClient() - Get type-safe Supabase client
-// - handleDbError() - Consistent error handling wrapper
-// - type definitions for database responses
+export async function getSupabaseClient() {
+  const cookieStore = await cookies();
 
+  return createServerClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet: Array<{ name: string; value: string; options: CookieOptions }>) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          cookieStore.set(name, value, options);
+        });
+      },
+    },
+  });
+}
+
+export type DbResult<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+};

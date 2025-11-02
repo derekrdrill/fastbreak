@@ -1,54 +1,244 @@
-// TODO: Implement event management server actions
-// All database interactions MUST happen server-side
-// Create generic helper(s) for type safety and consistent error handling
-// Actions: create, update, delete, list (with search/filter)
-
 'use server';
 
-export async function createEvent(eventData: {
-  name: string;
+import { getSupabaseClient, type DbResult } from '@/app/_lib/db-helpers';
+import type { Event } from '@/app/_lib/types';
+
+export async function createEvent({
+  fullName,
+  shortName,
+  sportType,
+  date,
+  venueNames,
+}: {
+  fullName: string;
+  shortName: string;
   sportType: string;
-  date: Date;
-  description: string;
-  venues: string[];
-}) {
-  // TODO: Create event in Supabase
-  // Use type-safe helper for database operations
-  // Return success/error with proper error handling
-}
+  date: string;
+  venueNames: string[];
+}): Promise<DbResult<Event>> {
+  try {
+    const supabase = await getSupabaseClient();
 
-export async function updateEvent(
-  eventId: string,
-  eventData: {
-    name: string;
-    sportType: string;
-    date: Date;
-    description: string;
-    venues: string[];
+    // Convert sport name to ID
+    const { SPORTS } = await import('@/app/_constants/events');
+    const sport = SPORTS.find(s => s.name === sportType);
+    if (!sport) {
+      return { success: false, error: 'Invalid sport type' };
+    }
+
+    // Convert venue names to IDs (find or create each venue)
+    const venueIds: number[] = [];
+    const venueNamesStored: string[] = [];
+
+    for (const venueName of venueNames) {
+      const { data: existingVenue } = await supabase
+        .from('venues')
+        .select('id, name')
+        .ilike('name', venueName)
+        .single();
+
+      if (existingVenue) {
+        venueIds.push(Number(existingVenue.id));
+        venueNamesStored.push(existingVenue.name);
+      } else {
+        // Create new venue
+        const { data: newVenue, error: venueError } = await supabase
+          .from('venues')
+          .insert({ name: venueName })
+          .select('id, name')
+          .single();
+
+        if (venueError || !newVenue) {
+          return { success: false, error: 'Failed to create venue' };
+        }
+
+        venueIds.push(Number(newVenue.id));
+        venueNamesStored.push(newVenue.name);
+      }
+    }
+
+    // Create event with venueIds array
+    const { data: eventData, error } = await supabase
+      .from('events')
+      .insert({
+        fullName,
+        shortName,
+        sportTypeId: sport.id,
+        date,
+        venueIds: venueIds.map(id => Number(id)),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Return UI-friendly Event type with venue names
+    const event: Event = {
+      id: eventData.id,
+      fullName: eventData.fullName,
+      shortName: eventData.shortName,
+      sportTypeId: eventData.sportTypeId,
+      date: eventData.date,
+      venues: venueNamesStored,
+    };
+
+    return { success: true, data: event };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create event',
+    };
   }
-) {
-  // TODO: Update event in Supabase
-  // Use type-safe helper for database operations
-  // Return success/error with proper error handling
 }
 
-export async function deleteEvent(eventId: string) {
+export async function updateEvent({
+  id,
+  fullName,
+  shortName,
+  sportTypeId,
+  venues,
+  date,
+}: Event): Promise<DbResult<Event>> {
+  try {
+    const supabase = await getSupabaseClient();
+
+    // Convert venue names to IDs (find or create each venue)
+    const venueIds: number[] = [];
+
+    for (const venueName of venues) {
+      const { data: existingVenue } = await supabase
+        .from('venues')
+        .select('id')
+        .ilike('name', venueName)
+        .single();
+
+      if (existingVenue) {
+        venueIds.push(existingVenue.id);
+      } else {
+        // Create new venue
+        const { data: newVenue, error: venueError } = await supabase
+          .from('venues')
+          .insert({ name: venueName })
+          .select('id')
+          .single();
+
+        if (venueError || !newVenue) {
+          return { success: false, error: 'Failed to create venue' };
+        }
+
+        venueIds.push(newVenue.id);
+      }
+    }
+
+    // Update event with venueIds array
+    const { data: eventData, error } = await supabase
+      .from('events')
+      .update({
+        fullName,
+        shortName,
+        sportTypeId,
+        date,
+        venueIds,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Return UI-friendly Event type with venue names
+    const event: Event = {
+      id: eventData.id,
+      fullName: eventData.fullName,
+      shortName: eventData.shortName,
+      sportTypeId: eventData.sportTypeId,
+      date: eventData.date,
+      venues,
+    };
+
+    return { success: true, data: event };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update event',
+    };
+  }
+}
+
+export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
   // TODO: Delete event from Supabase
   // Use type-safe helper for database operations
   // Return success/error with proper error handling
+  return { success: false, error: 'Not implemented' };
 }
 
 export async function getEvents(filters?: {
   search?: string;
   sportType?: string;
-}) {
-  // TODO: Fetch events from Supabase with optional filters
-  // Support search by name and filter by sport type
-  // Return events array or error
+}): Promise<DbResult<Event[]>> {
+  try {
+    const supabase = await getSupabaseClient();
+
+    let query = supabase.from('events').select('*').order('date', { ascending: true });
+
+    // Apply filters if provided
+    if (filters?.search) {
+      query = query.or(
+        `fullName.ilike.%${filters.search}%,shortName.ilike.%${filters.search}%`
+      );
+    }
+
+    if (filters?.sportType) {
+      const { SPORTS } = await import('@/app/_constants/events');
+      const sport = SPORTS.find(s => s.name === filters.sportType);
+      if (sport) {
+        query = query.eq('sportTypeId', sport.id);
+      }
+    }
+
+    const { data: eventsData, error } = await query;
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (!eventsData || eventsData.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    // Convert venueIds to venue names
+    const { data: allVenues } = await supabase.from('venues').select('id, name');
+
+    const venueMap = new Map<number, string>();
+    allVenues?.forEach(venue => {
+      venueMap.set(Number(venue.id), venue.name);
+    });
+
+    // Transform events to UI format
+    const events: Event[] = eventsData.map(event => ({
+      id: event.id,
+      fullName: event.fullName,
+      shortName: event.shortName,
+      sportTypeId: event.sportTypeId,
+      date: event.date,
+      venues: (event.venueIds || []).map(id => venueMap.get(id) || '').filter(Boolean),
+    }));
+
+    return { success: true, data: events };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch events',
+    };
+  }
 }
 
-export async function getEvent(eventId: string) {
+export async function getEvent(eventId: number): Promise<DbResult<Event>> {
   // TODO: Fetch single event by ID from Supabase
   // Return event data or error
+  return { success: false, error: 'Not implemented' };
 }
-

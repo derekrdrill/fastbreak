@@ -5,8 +5,8 @@ import { EventEditButton } from '@/app/dashboard/_components';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-function EventCard({ id, shortName, fullName, date, venues }: Omit<Event, 'sportType'>) {
-  const formattedDate = date.toLocaleDateString();
+function EventCard({ id, shortName, fullName, date, venues }: Omit<Event, 'sportTypeId'>) {
+  const formattedDate = new Date(date).toLocaleDateString();
   const formattedVenues = getFormattedVenues({ venues });
 
   return (

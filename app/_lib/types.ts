@@ -1,24 +1,35 @@
-// TODO: Define TypeScript types/interfaces for the application
-// Event types
-// User types
-// Database response types
-// Form types
+// Database types
+export interface Venue {
+  id: number;
+  name: string;
+}
 
+// Database schema - what's actually stored in Supabase
+export interface EventDB {
+  id: number;
+  fullName: string;
+  shortName: string;
+  sportTypeId: number;
+  date: string;
+  venueIds: number[];
+}
+
+// UI type - what we work with in the frontend (with venue names populated)
 export interface Event {
   id: number;
   fullName: string;
   shortName: string;
-  sportType: SportType;
-  date: Date;
-  venues: string | string[];
+  sportTypeId: number;
+  date: string;
+  venues: string[];
 }
 
 export interface User {
   id: string;
   email: string;
-  // TODO: Add more user fields as needed (name, avatar, etc.)
 }
 
+// UI types
 export type DashboardView = 'card' | 'list';
 
 export type SportType =

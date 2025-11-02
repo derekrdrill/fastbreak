@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { toast } from 'sonner';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 import {
   Form,
@@ -21,7 +24,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { SPORTS } from '@/app/_constants/events';
-import { Event } from '@/app/_lib/types';
+import { createEvent, updateEvent } from '@/app/_actions/events';
+import type { Event, Venue } from '@/app/_lib/types';
 
 const sports = SPORTS.map(sport => sport.name) as [string, ...string[]];
 
@@ -36,17 +40,21 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface EventFormProps {
+  venues: Venue[];
   event?: Event;
 }
 
-export default function EventForm({ event }: EventFormProps) {
+export default function EventForm({ venues, event }: EventFormProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: event
       ? {
           fullName: event.fullName,
           shortName: event.shortName,
-          sportType: event.sportType,
+          sportType: SPORTS.find(s => s.id === event.sportTypeId)?.name,
           date: new Date(event.date).toISOString().slice(0, 16),
           venues: Array.isArray(event.venues) ? event.venues : [event.venues],
         }
@@ -59,22 +67,59 @@ export default function EventForm({ event }: EventFormProps) {
         },
   });
 
-  const venues = form.watch('venues');
+  const venuesArray = form.watch('venues');
 
   const addVenue = () => {
-    form.setValue('venues', [...venues, '']);
+    form.setValue('venues', [...venuesArray, '']);
   };
 
   const removeVenue = (index: number) => {
     form.setValue(
       'venues',
-      venues.filter((_, i) => i !== index),
+      venuesArray.filter((_, i) => i !== index),
     );
   };
 
-  const handleSubmit = (values: FormValues) => {
-    console.log('Event form submitted:', values);
-    // TODO: Handle event submission
+  const handleSubmit = async (values: FormValues) => {
+    setIsSubmitting(true);
+
+    let result;
+    if (event) {
+      // Update existing event
+      const sport = SPORTS.find(s => s.name === values.sportType);
+      if (!sport) {
+        toast.error('Invalid sport type');
+        setIsSubmitting(false);
+        return;
+      }
+
+      result = await updateEvent({
+        id: event.id,
+        fullName: values.fullName,
+        shortName: values.shortName,
+        sportTypeId: sport.id,
+        date: values.date,
+        venues: values.venues,
+      });
+    } else {
+      // Create new event with all venues
+      result = await createEvent({
+        fullName: values.fullName,
+        shortName: values.shortName,
+        sportType: values.sportType,
+        date: values.date,
+        venueNames: values.venues,
+      });
+    }
+
+    setIsSubmitting(false);
+
+    if (result.success) {
+      toast.success(event ? 'Event updated successfully!' : 'Event created successfully!');
+      router.push('/dashboard');
+    } else {
+      toast.error(result.error || `Failed to ${event ? 'update' : 'create'} event`);
+    }
   };
 
   return (
@@ -148,7 +193,7 @@ export default function EventForm({ event }: EventFormProps) {
         />
         <div>
           <label className='text-sm font-medium'>Venues</label>
-          {venues.map((_, index) => (
+          {venuesArray?.map((_, index) => (
             <div key={index} className='flex gap-2 mt-2 items-start'>
               <FormField
                 control={form.control}
@@ -156,13 +201,20 @@ export default function EventForm({ event }: EventFormProps) {
                 render={({ field }) => (
                   <FormItem className='flex-1'>
                     <FormControl>
-                      <Input placeholder='Enter venue' {...field} />
+                      <div className='relative'>
+                        <Input placeholder='Enter venue' list='venues-list' {...field} />
+                        <datalist id='venues-list'>
+                          {venues?.map(venue => (
+                            <option key={venue.id} value={venue.name} />
+                          ))}
+                        </datalist>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {venues.length > 1 && (
+              {venuesArray?.length && (
                 <button
                   type='button'
                   onClick={() => removeVenue(index)}
@@ -187,9 +239,16 @@ export default function EventForm({ event }: EventFormProps) {
         </div>
         <button
           type='submit'
-          className='w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all duration-200 hover:shadow-lg active:scale-[0.99] font-medium'
+          disabled={isSubmitting}
+          className='w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg active:scale-[0.99] font-semibold'
         >
-          {event ? 'Update Event' : 'Create Event'}
+          {isSubmitting
+            ? event
+              ? 'Updating...'
+              : 'Creating...'
+            : event
+              ? 'Update Event'
+              : 'Create Event'}
         </button>
       </form>
     </Form>

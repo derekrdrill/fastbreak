@@ -1,5 +1,6 @@
 import './_styles/globals.css';
 import type { Metadata } from 'next';
+import { Toaster } from 'sonner';
 import Header from './_components/Header/Header';
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
+        <Toaster position='top-right' />
       </body>
     </html>
   );
