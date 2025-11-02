@@ -154,10 +154,50 @@ export async function updateEvent({
 }
 
 export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
-  // TODO: Delete event from Supabase
-  // Use type-safe helper for database operations
-  // Return success/error with proper error handling
-  return { success: false, error: 'Not implemented' };
+  try {
+    const supabase = await getSupabaseClient();
+
+    // Check if event exists
+    const { data: existingEvent, error: findError } = await supabase
+      .from('events')
+      .select('id')
+      .eq('id', eventId)
+      .maybeSingle();
+
+    if (findError) {
+      return { success: false, error: findError.message || 'Failed to check event existence' };
+    }
+
+    if (!existingEvent) {
+      return { success: false, error: 'Event not found' };
+    }
+
+    // Delete the event and verify deletion
+    const { data: deletedData, error: deleteError } = await supabase
+      .from('events')
+      .delete()
+      .eq('id', eventId)
+      .select();
+
+    if (deleteError) {
+      return { success: false, error: deleteError.message || 'Failed to delete event' };
+    }
+
+    // Verify deletion succeeded
+    if (!deletedData || deletedData.length === 0) {
+      return {
+        success: false,
+        error: 'Event deletion may have failed due to permissions. Please check RLS policies.',
+      };
+    }
+
+    return { success: true, data: null };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete event',
+    };
+  }
 }
 
 export async function getEvents(filters?: {

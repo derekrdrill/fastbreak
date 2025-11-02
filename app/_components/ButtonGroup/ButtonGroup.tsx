@@ -32,19 +32,17 @@ function ButtonGroup<T = string>({ options, value, onChange, className }: Button
         return (
           <Button
             key={index}
-            type='button'
+            className={classNames('rounded-none border-0', {
+              'rounded-l-md': isFirst,
+              'rounded-r-md': isLast,
+              'border-l border-gray-300': !isFirst,
+              'bg-purple-600 text-white hover:bg-purple-700': isSelected,
+              'bg-white text-gray-700 hover:bg-purple-100': !isSelected,
+            })}
             onClick={() => onChange(option.value)}
+            size='sm'
+            type='button'
             variant={isSelected ? 'default' : 'outline'}
-            className={classNames(
-              'rounded-none border-0',
-              {
-                'rounded-l-md': isFirst,
-                'rounded-r-md': isLast,
-                'border-l border-gray-300': !isFirst,
-                'bg-purple-600 text-white hover:bg-purple-700': isSelected,
-                'bg-white text-gray-700 hover:bg-purple-100': !isSelected,
-              },
-            )}
           >
             {option.icon}
             {option.label}
