@@ -16,7 +16,9 @@ import { useResponsiveEngine } from '@/app/_hooks';
 function EventsList() {
   const { isMobile, isTablet } = useResponsiveEngine();
   const view = useDashboardStore(state => state.view);
-  const eventsBySport = getEventsBySport();
+  const searchQuery = useDashboardStore(state => state.searchQuery);
+  const sportFilter = useDashboardStore(state => state.sportFilter);
+  const eventsBySport = getEventsBySport({ searchQuery, sportFilter });
 
   const isCardView = view === 'card';
   const isListView = view === 'list';

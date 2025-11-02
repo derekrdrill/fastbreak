@@ -42,5 +42,29 @@ describe('dashboard.helpers', () => {
         expect(section.events.length).toBeGreaterThan(0);
       });
     });
+
+    it('should filter events by search query', () => {
+      const result = getEventsBySport({ searchQuery: 'Lakers' });
+
+      const allEvents = result.flatMap(section => section.events);
+      expect(allEvents.length).toBeGreaterThan(0);
+      allEvents.forEach(event => {
+        const matchesSearch =
+          event.fullName.toLowerCase().includes('lakers') ||
+          event.shortName.toLowerCase().includes('lakers');
+        expect(matchesSearch).toBe(true);
+      });
+    });
+
+    it('should filter events by sport type', () => {
+      const result = getEventsBySport({ sportFilter: 2 });
+
+      result.forEach(section => {
+        expect(section.sport.id).toBe(2);
+        section.events.forEach(event => {
+          expect(event.sportType).toBe(2);
+        });
+      });
+    });
   });
 });

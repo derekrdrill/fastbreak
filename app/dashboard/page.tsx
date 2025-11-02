@@ -1,13 +1,17 @@
 'use client';
 
 import ButtonGroup from '@/app/_components/ButtonGroup/ButtonGroup';
-import EventsList from '@/app/dashboard/_components/EventsList/EventsList';
+import { EventsList, SearchInput, SportFilter } from '@/app/dashboard/_components';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 
 export default function DashboardPage() {
-  const view = useDashboardStore(state => state.view);
-  const setView = useDashboardStore(state => state.setView);
   const hasHydrated = useDashboardStore(state => state._hasHydrated);
+  const searchQuery = useDashboardStore(state => state.searchQuery);
+  const sportFilter = useDashboardStore(state => state.sportFilter);
+  const view = useDashboardStore(state => state.view);
+  const setSearchQuery = useDashboardStore(state => state.setSearchQuery);
+  const setSportFilter = useDashboardStore(state => state.setSportFilter);
+  const setView = useDashboardStore(state => state.setView);
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -32,11 +36,14 @@ export default function DashboardPage() {
           </a>
         </div>
       </div>
-      {/* TODO: Add search and filter controls */}
-      <div className='mb-6'>
-        {/* Search by name */}
-        {/* Filter by sport type */}
-      </div>
+
+      {hasHydrated && (
+        <div className='mb-6 flex flex-col sm:flex-row gap-4'>
+          <SearchInput value={searchQuery} onChange={setSearchQuery} />
+          <SportFilter value={sportFilter} onChange={setSportFilter} />
+        </div>
+      )}
+
       {hasHydrated && <EventsList />}
     </div>
   );
