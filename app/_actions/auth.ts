@@ -9,7 +9,22 @@ import {
 } from '@/app/_helpers/db';
 import type { User } from '@/app/_types';
 
-export async function signUp(email: string, password: string): Promise<DbResult<{ user: User }>> {
+/**
+ * Creates a new user account with email and password.
+ * Sends a confirmation email to the provided email address.
+ *
+ * @param params - Parameters object
+ * @param params.email - Email address for the new account
+ * @param params.password - Password for the new account (minimum 6 characters)
+ * @returns Result containing the created user, or error if signup fails
+ */
+export async function signUp({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}): Promise<DbResult<{ user: User }>> {
   return handleDbOperation({
     operation: async () => {
       const supabase = await getSupabaseClient();
@@ -41,7 +56,21 @@ export async function signUp(email: string, password: string): Promise<DbResult<
   });
 }
 
-export async function signIn(email: string, password: string): Promise<DbResult<{ user: User }>> {
+/**
+ * Signs in an existing user with email and password.
+ *
+ * @param params - Parameters object
+ * @param params.email - Email address of the user
+ * @param params.password - Password of the user
+ * @returns Result containing the authenticated user, or error if signin fails
+ */
+export async function signIn({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}): Promise<DbResult<{ user: User }>> {
   return handleDbOperation({
     operation: async () => {
       const supabase = await getSupabaseClient();
@@ -70,6 +99,12 @@ export async function signIn(email: string, password: string): Promise<DbResult<
   });
 }
 
+/**
+ * Initiates Google OAuth authentication flow.
+ * Returns a URL that redirects the user to Google's authentication page.
+ *
+ * @returns Result containing the OAuth redirect URL
+ */
 export async function signInWithGoogle(): Promise<DbResult<{ url: string }>> {
   return handleDbOperation({
     operation: async () => {
@@ -97,6 +132,12 @@ export async function signInWithGoogle(): Promise<DbResult<{ url: string }>> {
   });
 }
 
+/**
+ * Signs out the currently authenticated user.
+ * Clears the session and authentication cookies.
+ *
+ * @returns Result indicating success or failure of the sign out operation
+ */
 export async function signOut(): Promise<DbResult<null>> {
   return handleDbOperation({
     operation: async () => {
@@ -114,6 +155,12 @@ export async function signOut(): Promise<DbResult<null>> {
   });
 }
 
+/**
+ * Gets the current authenticated user session.
+ * Returns the user if authenticated, or null if not authenticated.
+ *
+ * @returns Result containing the authenticated user, or null if not authenticated
+ */
 export async function getAuthenticatedSession(): Promise<DbResult<{ user: User } | null>> {
   return handleDbOperation({
     operation: async () => {

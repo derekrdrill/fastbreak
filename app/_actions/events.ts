@@ -14,6 +14,19 @@ import {
 } from '@/app/_helpers/db';
 import type { Event } from '@/app/_types';
 
+/**
+ * Creates a new event in the database.
+ * Resolves venue names to IDs (creating venues if needed) and associates the event with a sport type.
+ *
+ * @param params - Parameters object
+ * @param params.fullName - Full name of the event (e.g., "Los Angeles Lakers vs. Boston Celtics")
+ * @param params.shortName - Short name of the event (e.g., "LAL v BOS")
+ * @param params.description - Optional description of the event
+ * @param params.sportType - Name of the sport type (must match a sport in SPORTS constant)
+ * @param params.date - Date and time of the event (ISO string format)
+ * @param params.venueNames - Array of venue names (venues will be created if they don't exist)
+ * @returns Result containing the created event with venue names populated
+ */
 export async function createEvent({
   fullName,
   shortName,
@@ -85,6 +98,20 @@ export async function createEvent({
   });
 }
 
+/**
+ * Updates an existing event in the database.
+ * Resolves venue names to IDs (creating venues if needed) and updates all event fields.
+ *
+ * @param params - Parameters object (Event type)
+ * @param params.id - ID of the event to update
+ * @param params.fullName - Updated full name of the event
+ * @param params.shortName - Updated short name of the event
+ * @param params.description - Updated description of the event
+ * @param params.sportTypeId - Updated sport type ID
+ * @param params.date - Updated date and time of the event
+ * @param params.venues - Updated array of venue names
+ * @returns Result containing the updated event
+ */
 export async function updateEvent({
   id,
   fullName,
@@ -146,7 +173,15 @@ export async function updateEvent({
   });
 }
 
-export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
+/**
+ * Deletes an event from the database.
+ * Verifies the event exists before deletion and confirms successful deletion.
+ *
+ * @param params - Parameters object
+ * @param params.eventId - ID of the event to delete
+ * @returns Result indicating success or failure of the deletion
+ */
+export async function deleteEvent({ eventId }: { eventId: number }): Promise<DbResult<null>> {
   return handleDbOperation({
     operation: async () => {
       const supabase = await getSupabaseClient();
@@ -191,9 +226,24 @@ export async function deleteEvent(eventId: number): Promise<DbResult<null>> {
   });
 }
 
-export async function getEvents(filters?: {
-  search?: string;
-  sportTypeId?: number | null;
+/**
+ * Fetches events from the database with optional filtering.
+ * Supports filtering by search query (name/description) and sport type.
+ * Returns events with venue IDs converted to venue names.
+ *
+ * @param params - Parameters object
+ * @param params.filters - Optional filters object
+ * @param params.filters.search - Optional search query to filter by event name or description
+ * @param params.filters.sportTypeId - Optional sport type ID to filter by
+ * @returns Result containing array of filtered events with venue names populated
+ */
+export async function getEvents({
+  filters,
+}: {
+  filters?: {
+    search?: string;
+    sportTypeId?: number | null;
+  };
 }): Promise<DbResult<Event[]>> {
   return handleDbOperation({
     operation: async () => {
@@ -207,7 +257,8 @@ export async function getEvents(filters?: {
         );
       }
 
-      if (filters?.sportTypeId !== null && filters?.sportTypeId !== undefined) {
+      const hasSportTypeId = filters?.sportTypeId !== null && filters?.sportTypeId !== undefined;
+      if (hasSportTypeId) {
         query = query.eq('sportTypeId', filters.sportTypeId);
       }
 
@@ -243,7 +294,15 @@ export async function getEvents(filters?: {
   });
 }
 
-export async function getEvent(eventId: number): Promise<DbResult<Event>> {
+/**
+ * Fetches a single event by ID from the database.
+ * Returns the event with venue IDs converted to venue names.
+ *
+ * @param params - Parameters object
+ * @param params.eventId - ID of the event to fetch
+ * @returns Result containing the event with venue names populated, or error if not found
+ */
+export async function getEvent({ eventId }: { eventId: number }): Promise<DbResult<Event>> {
   return handleDbOperation({
     operation: async () => {
       const supabase = await getSupabaseClient();

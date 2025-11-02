@@ -9,6 +9,12 @@ import {
 } from '@/app/_helpers/db';
 import type { Venue } from '@/app/_types';
 
+/**
+ * Fetches all venues from the database.
+ * Returns venues ordered alphabetically by name.
+ *
+ * @returns Result containing array of all venues
+ */
 export async function getVenues(): Promise<DbResult<Venue[]>> {
   return handleDbOperation({
     operation: async () => {
