@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, startTransition } from 'react';
+import { useEffect, useState, startTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { IoAdd, IoGrid, IoList } from 'react-icons/io5';
@@ -32,7 +32,7 @@ function DashboardRoot({ initialEvents }: DashboardRootProps) {
   const effectiveSportFilter =
     pendingSportFilter !== undefined ? pendingSportFilter : urlSportFilter;
 
-  const showShimmer = !hasHydrated || isLoading || isInitialMount;
+  const shouldShowShimmer = !hasHydrated || isLoading || isInitialMount;
 
   useEffect(() => {
     if (isInitialMount) {
@@ -60,10 +60,6 @@ function DashboardRoot({ initialEvents }: DashboardRootProps) {
     }
   }, [isLoading, setPendingSportFilter]);
 
-  const shimmerComponent = useMemo(() => {
-    return <EventsShimmer sportFilter={effectiveSportFilter ?? null} view={view} />;
-  }, [view, effectiveSportFilter]);
-
   return (
     <div className='container mx-auto px-4 py-8'>
       <div className='flex flex-col gap-4 justify-between mb-6 sm:flex-row sm:items-center'>
@@ -77,13 +73,13 @@ function DashboardRoot({ initialEvents }: DashboardRootProps) {
               ]}
               value={view}
               onChange={setView}
-              disabled={showShimmer}
+              disabled={shouldShowShimmer}
             />
           )}
           <Button
             asChild
             className='bg-blue-500 hover:bg-blue-600 hover:shadow-md'
-            disabled={showShimmer}
+            disabled={shouldShowShimmer}
           >
             <Link href='/event/new'>
               <IoAdd className='w-5 h-5' />
@@ -100,19 +96,8 @@ function DashboardRoot({ initialEvents }: DashboardRootProps) {
         </div>
       )}
 
-      {(() => {
-        const shouldShowShimmer = showShimmer;
-        const isHydratedAndNotLoading = hasHydrated && !showShimmer;
-        const shouldShowEventsList = isHydratedAndNotLoading;
-
-        if (shouldShowShimmer) {
-          return shimmerComponent;
-        }
-        if (shouldShowEventsList) {
-          return <EventsList events={events} />;
-        }
-        return null;
-      })()}
+      {shouldShowShimmer && <EventsShimmer sportFilter={effectiveSportFilter} view={view} />}
+      {!shouldShowShimmer && <EventsList events={events} />}
     </div>
   );
 }

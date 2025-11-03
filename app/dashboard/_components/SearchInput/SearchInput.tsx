@@ -11,25 +11,19 @@ function SearchInput() {
   const searchParams = useSearchParams();
   const isLoading = useDashboardStore(state => state.isLoading);
   const setIsLoading = useDashboardStore(state => state.setIsLoading);
-
   const urlSearch = searchParams.get('search') || '';
+
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isTypingRef = useRef(false);
+  const lastCommittedValueRef = useRef(urlSearch);
+  const shouldRestoreFocusRef = useRef(false);
 
   const [localValue, setLocalValue] = useState(urlSearch);
   const [isPendingSearch, setIsPendingSearch] = useState(false);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isTypingRef = useRef(false);
-  const lastCommittedValueRef = useRef(urlSearch);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const shouldRestoreFocusRef = useRef(false);
 
-  useEffect(() => {
-    if (!isTypingRef.current && urlSearch !== lastCommittedValueRef.current) {
-      startTransition(() => {
-        setLocalValue(urlSearch);
-        lastCommittedValueRef.current = urlSearch;
-      });
-    }
-  }, [urlSearch]);
+  const isSearchBarDisabled = isLoading && !isPendingSearch;
+  const shouldShowClearButtonRef = localValue && !isPendingSearch;
 
   const handleChange = (value: string) => {
     isTypingRef.current = true;
@@ -63,7 +57,29 @@ function SearchInput() {
   };
 
   useEffect(() => {
-    if (!isLoading && !isPendingSearch && shouldRestoreFocusRef.current && inputRef.current) {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const shouldStartTransition =
+      !isTypingRef.current && urlSearch !== lastCommittedValueRef.current;
+
+    if (shouldStartTransition) {
+      startTransition(() => {
+        setLocalValue(urlSearch);
+        lastCommittedValueRef.current = urlSearch;
+      });
+    }
+  }, [urlSearch]);
+
+  useEffect(() => {
+    const shouldRestoreFocus =
+      !isLoading && !isPendingSearch && shouldRestoreFocusRef.current && inputRef.current;
+    if (shouldRestoreFocus) {
       const timer = setTimeout(() => {
         if (inputRef.current && document.activeElement !== inputRef.current) {
           inputRef.current.focus();
@@ -73,14 +89,6 @@ function SearchInput() {
       return () => clearTimeout(timer);
     }
   }, [isLoading, isPendingSearch]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className='relative flex-1'>
@@ -96,28 +104,24 @@ function SearchInput() {
             shouldRestoreFocusRef.current = false;
           }
         }}
-        disabled={isLoading && !isPendingSearch}
+        disabled={isSearchBarDisabled}
         className='w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
       />
       <div className='absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2'>
         {isPendingSearch && <Loader2 className='h-4 w-4 text-gray-400 animate-spin' />}
-        {(() => {
-          const hasValue = Boolean(localValue);
-          const shouldShowClearButton = hasValue && !isPendingSearch;
-          return shouldShowClearButton ? (
-            <Button
-              type='button'
-              variant='ghost'
-              size='icon-sm'
-              onClick={() => handleChange('')}
-              className='text-gray-400 hover:text-gray-600 h-auto w-auto p-0'
-              aria-label='Clear search'
-              disabled={isLoading}
-            >
-              <X className='h-4 w-4' />
-            </Button>
-          ) : null;
-        })()}
+        {shouldShowClearButtonRef && (
+          <Button
+            type='button'
+            variant='ghost'
+            size='icon-sm'
+            onClick={() => handleChange('')}
+            className='text-gray-400 hover:text-gray-600 h-auto w-auto p-0'
+            aria-label='Clear search'
+            disabled={isLoading}
+          >
+            <X className='h-4 w-4' />
+          </Button>
+        )}
       </div>
     </div>
   );
