@@ -1,7 +1,7 @@
 'use client';
 
 import classNames from 'classnames';
-import { useFormContext, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
+import { type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import {
   Select,
@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useFormControl } from '@/app/_hooks';
 
 interface SelectOption {
   label: string;
@@ -41,9 +42,7 @@ function FormSelect<
   className,
   required,
 }: FormSelectProps<TFieldValues, TName>) {
-  const formContext = useFormContext<TFieldValues>();
-  const hasControl = Boolean(control);
-  const formControl = hasControl ? control : formContext.control;
+  const formControl = useFormControl<TFieldValues>(control);
 
   return (
     <FormField

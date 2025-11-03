@@ -1,9 +1,10 @@
 import classNames from 'classnames';
-import { SPORTS } from '@/app/_constants/events';
+import { SPORTS } from '@/constants';
+import type { DashboardView } from '@/app/_types';
 
 interface EventsShimmerProps {
   sportFilter?: number | null;
-  view: 'card' | 'list';
+  view: DashboardView;
 }
 
 function EventsShimmer({ sportFilter, view }: EventsShimmerProps) {

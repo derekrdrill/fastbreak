@@ -11,6 +11,7 @@ import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 
 interface AddDeleteButtonsProps {
   className?: string;
+  deleteButtonText?: string;
   eventId: number;
   showDelete?: boolean;
   showEdit?: boolean;
@@ -18,6 +19,7 @@ interface AddDeleteButtonsProps {
 
 function AddDeleteButtons({
   className,
+  deleteButtonText = 'Delete',
   eventId,
   showDelete = false,
   showEdit = true,
@@ -54,7 +56,7 @@ function AddDeleteButtons({
     }
   };
 
-  const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
+  const deleteButtonTextMapped = isDeleting ? 'Deleting...' : deleteButtonText;
   const editLinkHref = `/event/${eventId}/edit`;
 
   return (
@@ -65,7 +67,7 @@ function AddDeleteButtons({
           variant='outline'
           size='sm'
           className={classNames(
-            'border-gray-400 text-gray-400 hover:bg-gray-500 hover:text-gray-50',
+            'border-indigo-400 text-indigo-400 hover:bg-indigo-500 hover:text-indigo-50',
             className,
           )}
         >
@@ -83,7 +85,7 @@ function AddDeleteButtons({
             className,
           )}
         >
-          {deleteButtonText}
+          {deleteButtonTextMapped}
         </Button>
       )}
     </div>

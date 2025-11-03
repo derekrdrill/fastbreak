@@ -1,34 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from 'sonner';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { FormInput, FormSelect, FormAutocomplete } from '@/app/_components';
-import { SPORTS } from '@/app/_constants/events';
+import { SPORTS } from '@/constants';
 import { createEvent, updateEvent } from '@/app/_actions';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
-import type { Event, Venue } from '@/app/_types';
+import type { Venue, Event } from '@/app/_types';
+import { EVENT_FORM_COPY } from '@/app/event/_constants/event.constants';
+import { createEventFormDefaults } from '@/app/event/_helpers/event.helpers';
+import type { EventFormMode } from '@/app/event/_types/event.types';
+import { formSchema, sports, type FormValues } from './schema/event.schema';
 
-const sports = SPORTS.map(sport => sport.name) as [string, ...string[]];
-
-const formSchema = z.object({
-  fullName: z.string().min(1, 'Event name is required'),
-  shortName: z.string().min(1, 'Short name is required'),
-  description: z.string().optional(),
-  sportType: z.enum(sports),
-  date: z.string().min(1, 'Date is required'),
-  venues: z.array(z.string()).min(1, 'At least one venue is required'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-interface EventFormProps {
+export interface EventFormProps {
   venues: Venue[];
   event?: Event;
 }
@@ -37,56 +27,42 @@ function EventForm({ venues, event }: EventFormProps) {
   const router = useRouter();
   const setSelectedPlan = useDashboardStore(state => state.setSelectedPlan);
 
-  const isEditMode = Boolean(event);
-  const eventFullName = event?.fullName || '';
-  const eventShortName = event?.shortName || '';
-  const eventDescription = event?.description || '';
-  const eventSport = SPORTS.find(s => s.id === event?.sportTypeId);
-  const eventSportName = eventSport?.name;
-  const eventDate = event?.date ? new Date(event.date).toISOString().slice(0, 16) : '';
-  const eventVenues = event?.venues
-    ? Array.isArray(event.venues)
-      ? event.venues
-      : [event.venues]
-    : [''];
+  const formMode: EventFormMode = event ? 'edit' : 'create';
+  const modeCopy = EVENT_FORM_COPY[formMode];
 
-  const formDefaultValues = isEditMode
-    ? {
-        fullName: eventFullName,
-        shortName: eventShortName,
-        description: eventDescription,
-        sportType: eventSportName,
-        date: eventDate,
-        venues: eventVenues,
-      }
-    : {
-        fullName: '',
-        shortName: '',
-        description: '',
-        sportType: undefined,
-        date: '',
-        venues: [''],
-      };
+  const formDefaultValues = useMemo<Partial<FormValues>>(() => {
+    if (!event) {
+      return createEventFormDefaults();
+    }
+
+    const eventSport = SPORTS.find(s => s.id === event.sportTypeId);
+    const eventVenues = Array.isArray(event.venues)
+      ? event.venues
+      : event.venues
+        ? [event.venues]
+        : [''];
+
+    return createEventFormDefaults({
+      fullName: event.fullName || '',
+      shortName: event.shortName || '',
+      description: event.description || '',
+      sportType: eventSport?.name,
+      date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
+      venues: eventVenues,
+    });
+  }, [event]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: formDefaultValues,
   });
-  const venuesArray = form.watch('venues');
+  const venuesArray = form.watch('venues') ?? [];
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const hasMoreThanOneVenue = venuesArray?.length && venuesArray.length > 1;
-
-  const isUpdating = isSubmitting && isEditMode;
-  const isCreating = isSubmitting && !isEditMode;
-  const submitButtonText = isUpdating
-    ? 'Updating...'
-    : isCreating
-      ? 'Creating...'
-      : isEditMode
-        ? 'Update Event'
-        : 'Create Event';
+  const hasMoreThanOneVenue = venuesArray.length > 1;
+  const isEditMode = formMode === 'edit';
+  const submitButtonText = isSubmitting ? modeCopy.loadingLabel : modeCopy.submitLabel;
 
   const addVenue = () => {
     form.setValue('venues', [...venuesArray, '']);
@@ -133,11 +109,8 @@ function EventForm({ venues, event }: EventFormProps) {
 
     setIsSubmitting(false);
 
-    const successMessage = isEditMode
-      ? 'Event updated successfully!'
-      : 'Event created successfully!';
-    const errorAction = isEditMode ? 'update' : 'create';
-    const errorMessage = result.error || `Failed to ${errorAction} event`;
+    const successMessage = modeCopy.successMessage;
+    const errorMessage = result.error || modeCopy.errorMessage;
 
     if (result.success) {
       toast.success(successMessage);
@@ -150,9 +123,12 @@ function EventForm({ venues, event }: EventFormProps) {
   useEffect(() => {
     if (event) {
       setSelectedPlan(event);
-      return () => setSelectedPlan(null);
     }
   }, [event, setSelectedPlan]);
+
+  useEffect(() => {
+    form.reset(formDefaultValues);
+  }, [form, formDefaultValues]);
 
   return (
     <Form {...form}>
@@ -181,7 +157,7 @@ function EventForm({ venues, event }: EventFormProps) {
         <FormInput name='date' label='Date & Time' type='datetime-local' />
         <div>
           <label className='text-sm font-medium mb-2 block'>Venues</label>
-          {venuesArray?.map((_, index) => (
+          {venuesArray.map((_, index) => (
             <div key={index} className='flex gap-2 mt-2 items-start'>
               <FormAutocomplete<FormValues>
                 name={`venues.${index}`}

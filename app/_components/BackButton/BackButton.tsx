@@ -1,35 +1,30 @@
 'use client';
 
 import classNames from 'classnames';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { IoArrowBack } from 'react-icons/io5';
+import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 
 interface BackButtonProps {
   className?: string;
-  href?: string;
   label?: string;
 }
 
-function BackButton({ className, href, label = 'Back to Dashboard' }: BackButtonProps) {
-  const router = useRouter();
+function BackButton({ className, label = 'Back to Dashboard' }: BackButtonProps) {
+  const search = useDashboardStore(state => state.search);
+  const sportFilter = useDashboardStore(state => state.sportFilter);
 
-  const hasHref = Boolean(href);
-  const fallbackHref = '/dashboard';
-  const finalHref = href || fallbackHref;
+  const params = new URLSearchParams();
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (hasHref && href) {
-      router.push(href);
-    } else {
-      router.back();
-    }
-  };
+  if (search) params.set('search', search);
+  if (sportFilter) params.set('sport', String(sportFilter));
+
+  const paramsString = params.toString() ? `?${params.toString()}` : '';
+  const href = `/dashboard${paramsString}`;
 
   return (
-    <a
-      href={finalHref}
-      onClick={handleClick}
+    <Link
+      href={href}
       className={classNames(
         'inline-flex items-center text-blue-600 hover:text-blue-800 mb-4',
         className,
@@ -37,7 +32,7 @@ function BackButton({ className, href, label = 'Back to Dashboard' }: BackButton
     >
       <IoArrowBack className='w-5 h-5 mr-2' />
       {label}
-    </a>
+    </Link>
   );
 }
 

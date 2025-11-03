@@ -97,9 +97,7 @@ const FormLabel = React.forwardRef<
         {children}
         {required && <span className='text-red-500 ml-1'>*</span>}
       </Label>
-      {error && (
-        <span className='text-sm font-medium text-red-500'>{error.message}</span>
-      )}
+      {error && <span className='text-sm font-medium text-red-500'>{error.message}</span>}
     </div>
   );
 });
@@ -128,7 +126,7 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { formMessageId } = useFormField();
-  
+
   // Error messages are now shown in FormLabel, so this component is hidden
   return null;
 });
