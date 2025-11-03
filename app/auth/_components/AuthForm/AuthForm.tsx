@@ -57,8 +57,16 @@ function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
   const handleSubmit = useCallback(
     async (values: AuthFormValues) => {
       await onSubmit(values, mode);
+
+      if (mode === 'signup') {
+        form.reset({
+          ...AUTH_FORM_DEFAULT_VALUES,
+        });
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+      }
     },
-    [mode, onSubmit],
+    [form, mode, onSubmit],
   );
 
   const passwordInputType = showPassword ? 'text' : 'password';
