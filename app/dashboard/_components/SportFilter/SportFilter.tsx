@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SPORTS } from '@/app/_constants/events';
+import { SPORTS } from '@/constants';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import { getDashboardUrlWithParam } from '@/app/dashboard/_helpers/dashboard.helpers';
 

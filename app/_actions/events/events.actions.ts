@@ -1,5 +1,5 @@
 'use server';
-
+import { SPORTS } from '@/constants';
 import {
   getSupabaseClient,
   resolveVenueIds,
@@ -46,7 +46,6 @@ export async function createEvent({
     operation: async () => {
       const supabase = await getSupabaseClient();
 
-      const { SPORTS } = await import('@/app/_constants/events');
       const sport = SPORTS.find(s => s.name === sportType);
       if (!sport) {
         return validationError({ message: `Invalid sport type: "${sportType}" is not recognized` });

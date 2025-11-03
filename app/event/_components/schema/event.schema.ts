@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SPORTS } from '@/app/_constants/events';
+import { SPORTS } from '@/constants';
 
 export const sports = SPORTS.map(sport => sport.name) as [string, ...string[]];
 

@@ -9,7 +9,7 @@ import { IoAdd, IoTrash } from 'react-icons/io5';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { FormInput, FormSelect, FormAutocomplete } from '@/app/_components';
-import { SPORTS } from '@/app/_constants/events';
+import { SPORTS } from '@/constants';
 import { createEvent, updateEvent } from '@/app/_actions';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import type { Event, Venue } from '@/app/_types';

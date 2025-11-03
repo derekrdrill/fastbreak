@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { SPORTS } from '@/app/_constants/events';
+import { SPORTS } from '@/constants';
 
 interface EventsShimmerProps {
   sportFilter?: number | null;
