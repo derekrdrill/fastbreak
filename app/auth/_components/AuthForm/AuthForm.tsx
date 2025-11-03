@@ -9,8 +9,11 @@ import { FcGoogle } from 'react-icons/fc';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { FormInput } from '@/app/_components';
-import { AUTH_MODE_COPY, AUTH_TABS } from '@/app/auth/_constants/auth.constants';
-import { createAuthFormDefaults } from '@/app/auth/_helpers/auth.helpers';
+import {
+  AUTH_FORM_DEFAULT_VALUES,
+  AUTH_MODE_COPY,
+  AUTH_TABS,
+} from '@/app/auth/_constants/auth.constants';
 import type { AuthMode } from '@/app/auth/_types/auth.types';
 import {
   authSchema,
@@ -29,7 +32,9 @@ function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
-    defaultValues: createAuthFormDefaults(),
+    defaultValues: {
+      ...AUTH_FORM_DEFAULT_VALUES,
+    },
   });
 
   const isSubmitting = form.formState.isSubmitting;
@@ -39,7 +44,9 @@ function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
     (newMode: AuthMode) => {
       if (newMode !== mode) {
         setMode(newMode);
-        form.reset(createAuthFormDefaults());
+        form.reset({
+          ...AUTH_FORM_DEFAULT_VALUES,
+        });
         setShowPassword(false);
         setShowConfirmPassword(false);
       }
