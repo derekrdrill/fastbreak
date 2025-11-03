@@ -137,6 +137,8 @@ Carousel.displayName = 'Carousel';
 const CarouselContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
     const { carouselRef, orientation } = useCarousel();
+    const isHorizontal = orientation === 'horizontal';
+    const isVertical = orientation === 'vertical';
 
     return (
       <div ref={carouselRef} className='overflow-hidden'>
@@ -144,7 +146,10 @@ const CarouselContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
           ref={ref}
           className={classNames(
             'flex',
-            orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col',
+            {
+              '-ml-4': isHorizontal,
+              'flex-col -mt-4': isVertical,
+            },
             className,
           )}
           {...props}
@@ -158,6 +163,8 @@ CarouselContent.displayName = 'CarouselContent';
 const CarouselItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
     const { orientation } = useCarousel();
+    const isHorizontal = orientation === 'horizontal';
+    const isVertical = orientation === 'vertical';
 
     return (
       <div
@@ -166,7 +173,10 @@ const CarouselItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLD
         aria-roledescription='slide'
         className={classNames(
           'min-w-0 shrink-0 grow-0 basis-full',
-          orientation === 'horizontal' ? 'pl-4' : 'pt-4',
+          {
+            'pl-4': isHorizontal,
+            'pt-4': isVertical,
+          },
           className,
         )}
         {...props}
@@ -179,6 +189,8 @@ CarouselItem.displayName = 'CarouselItem';
 const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button>>(
   ({ className, variant = 'outline', size = 'icon', ...props }, ref) => {
     const { orientation, scrollPrev, canScrollPrev } = useCarousel();
+    const isHorizontal = orientation === 'horizontal';
+    const isVertical = orientation === 'vertical';
 
     return (
       <Button
@@ -187,9 +199,10 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
         size={size}
         className={classNames(
           'absolute h-8 w-8 rounded-full z-10 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-400 opacity-100 hover:shadow-md hover:scale-105',
-          orientation === 'horizontal'
-            ? 'left-2 top-1/2 -translate-y-1/2 md:left-6 lg:-left-12'
-            : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
+          {
+            'left-2 top-1/2 -translate-y-1/2 md:left-6 lg:-left-12': isHorizontal,
+            '-top-12 left-1/2 -translate-x-1/2 rotate-90': isVertical,
+          },
           className,
         )}
         disabled={!canScrollPrev}
@@ -207,6 +220,8 @@ CarouselPrevious.displayName = 'CarouselPrevious';
 const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button>>(
   ({ className, variant = 'outline', size = 'icon', ...props }, ref) => {
     const { orientation, scrollNext, canScrollNext } = useCarousel();
+    const isHorizontal = orientation === 'horizontal';
+    const isVertical = orientation === 'vertical';
 
     return (
       <Button
@@ -215,9 +230,10 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
         size={size}
         className={classNames(
           'absolute h-8 w-8 rounded-full z-10 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-400 opacity-100 hover:shadow-md hover:scale-105',
-          orientation === 'horizontal'
-            ? 'right-2 top-1/2 -translate-y-1/2 md:right-6 lg:-right-12'
-            : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
+          {
+            'right-2 top-1/2 -translate-y-1/2 md:right-6 lg:-right-12': isHorizontal,
+            '-bottom-12 left-1/2 -translate-x-1/2 rotate-90': isVertical,
+          },
           className,
         )}
         disabled={!canScrollNext}
