@@ -146,18 +146,18 @@ yarn test:watch   # Run tests in watch mode
 
 **venues**
 
-- `id` (bigint, PK)
-- `name` (text, unique)
+- `id` (int8, PK)
+- `name` (varchar)
 - Used for autocomplete and created on demand when new venue names are submitted.
 
 **events**
 
-- `id` (bigint, PK)
-- `fullName` / `shortName` (text)
-- `description` (text, optional)
-- `sportTypeId` (int) — aligns with IDs in `constants/sports`
+- `id` (int8, PK)
+- `fullName` / `shortName` (varchar)
+- `description` (varchar, optional)
+- `sportTypeId` (int2) — aligns with IDs in `constants/sports`
 - `date` (timestamptz)
-- `venueIds` (bigint[]) — stores the Supabase IDs for selected venues
+- `venueIds` (int2[]) — stores the IDs of selected venues
 
 ### RLS
 
