@@ -1,4 +1,4 @@
-import { SPORTS } from '@/app/_constants/events';
+import { SPORTS } from '@/constants';
 import type { Event } from '@/app/_types';
 
 /**
