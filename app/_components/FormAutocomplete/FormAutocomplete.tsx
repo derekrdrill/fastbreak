@@ -5,8 +5,8 @@ import { useState, useRef } from 'react';
 import { type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useFormControl } from '@/app/_components/_hooks/useFormControl';
-import { useClickOutside } from '@/app/_components/_hooks/useClickOutside';
+import { useFormControl } from '@/app/_hooks';
+import { useClickOutside } from '@/app/_hooks';
 
 interface SelectOption {
   label: string;
