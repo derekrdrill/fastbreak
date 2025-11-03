@@ -1,5 +1,5 @@
-import type { AuthFormValues } from '../_components/AuthForm/schema/auth.schema';
-import type { AuthMode } from '../_types/auth.types';
+import type { AuthFormValues } from '@/app/auth/_components/AuthForm/schema/auth.schema';
+import type { AuthMode } from '@/app/auth/_types/auth.types';
 
 export const AUTH_TABS: AuthMode[] = ['login', 'signup'];
 

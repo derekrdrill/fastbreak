@@ -1,4 +1,8 @@
-import type { EventFormMode, EventFormCopy, EventFormDefaultValues } from '../_types';
+import type {
+  EventFormMode,
+  EventFormCopy,
+  EventFormDefaultValues,
+} from '@/app/event/_types/event.types';
 
 const EVENT_FORM_DEFAULT_VALUES: EventFormDefaultValues = {
   fullName: '',

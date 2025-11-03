@@ -1,4 +1,4 @@
-import type { FormValues } from '../_components/schema/event.schema';
+import type { FormValues } from '@/app/event/_components/schema/event.schema';
 
 type EventFormMode = 'create' | 'edit';
 
