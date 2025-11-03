@@ -51,7 +51,7 @@ function EventsList({ events }: EventsListProps) {
                   align: 'start',
                   loop: false,
                 }}
-                className='w-full px-10 lg:px-0'
+                className='w-full px-7 lg:px-0'
               >
                 <CarouselContent>
                   {events.map(event => (
