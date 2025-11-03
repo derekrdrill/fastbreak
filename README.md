@@ -21,13 +21,27 @@
 
 ## ✨ Features
 
-- 🔐 **Authentication** - Email/password and Google OAuth
-- 📅 **Event Management** - Create, view, edit, and delete events
-- 🔍 **Search & Filter** - Search by name/description and filter by sport type
-- 🎨 **Responsive Design** - Mobile, tablet, and desktop optimized
-- ⚡ **Server-Side Rendering** - Fast initial loads with Next.js App Router
-- 🔒 **Protected Routes** - Middleware-based route protection
-- 💾 **Type-Safe** - Full TypeScript coverage with strict typing
+- 🔐 **Authentication** - Email/password and Google OAuth flows with Supabase Auth
+- 📅 **Event Management** - Create, view, edit, and delete events with multi-venue support
+- 🔍 **Search & Filter** - Query by name/description and filter by sport, re-fetching from Supabase
+- 🧭 **View Controls** - Toggle card/list dashboards with persisted user preference
+- 🎨 **Responsive Design** - Optimized layouts across mobile, tablet, and desktop
+- 🪄 **Feedback Loops** - Toast notifications, form validation, and skeleton loading states
+- 💾 **Type-Safe** - Full TypeScript coverage with shared DTOs and helpers
+
+---
+
+## 📋 Spec Coverage
+
+- ✅ Next.js 16+ App Router with TypeScript, Tailwind CSS 4, and shadcn/ui
+- ✅ Supabase server actions for all database and auth access (no client-side Supabase calls)
+- ✅ Supabase Auth supporting email/password + Google OAuth, with logout and session helpers
+- ✅ Dashboard listing events with responsive card/list views, search, and sport filters
+- ✅ Event CRUD flows covering multi-venue entry, validation, and optimistic UI refresh
+- ✅ Toast-driven success/error feedback and shimmer loading states
+- ✅ Consistent typing via shared `DbResult`, helper utilities, and Zod form schemas
+- ✅ Route guard via `middleware.ts` keeps authenticated-only pages protected
+- 🚀 Deployed in Vercel
 
 ---
 
@@ -66,7 +80,7 @@
    ```
 
 4. **Set up Supabase**
-   - Create tables: `events` and `venues`
+   - Create tables: `events` and `venues` (see Supabase Setup section below)
    - Enable Row Level Security (RLS) policies
    - Enable Google OAuth provider (optional)
 
@@ -117,11 +131,38 @@ yarn test:watch   # Run tests in watch mode
 
 ## 🔑 Environment Variables
 
-| Variable               | Description                         | Required |
-| ---------------------- | ----------------------------------- | -------- |
-| `SUPABASE_URL`         | Your Supabase project URL           | ✅ Yes   |
-| `SUPABASE_ANON_KEY`    | Your Supabase anonymous key         | ✅ Yes   |
-| `NEXT_PUBLIC_SITE_URL` | Your site URL (for OAuth callbacks) | ✅ Yes   |
+| Variable               | Description                                      | Required    |
+| ---------------------- | ------------------------------------------------ | ----------- |
+| `SUPABASE_URL`         | Your Supabase project URL                        | ✅ Yes      |
+| `SUPABASE_ANON_KEY`    | Your Supabase anonymous key                      | ✅ Yes      |
+| `NEXT_PUBLIC_SITE_URL` | Your site URL (for OAuth callbacks)              | ✅ Yes      |
+| `ENV`                  | Set to `local` to bypass auth middleware locally | ❌ Optional |
+
+---
+
+## 🗄️ Supabase Setup
+
+### Tables
+
+**venues**
+
+- `id` (bigint, PK)
+- `name` (text, unique)
+- Used for autocomplete and created on demand when new venue names are submitted.
+
+**events**
+
+- `id` (bigint, PK)
+- `fullName` / `shortName` (text)
+- `description` (text, optional)
+- `sportTypeId` (int) — aligns with IDs in `constants/sports`
+- `date` (timestamptz)
+- `venueIds` (bigint[]) — stores the Supabase IDs for selected venues
+
+### RLS
+
+- Allow authenticated users to `select`, `insert`, `update`, and `delete` their events (adjust role logic per your needs).
+- Allow authenticated users to `select` and `insert` venues.
 
 ---
 
@@ -132,12 +173,6 @@ yarn test:watch   # Run tests in watch mode
 - **Centralized Error Handling** - Consistent error handling with `DbResult<T>` pattern
 - **Modular Helpers** - Organized helper functions in dedicated folders
 - **Type Safety** - Full TypeScript coverage with strict typing
-
----
-
-## 📝 License
-
-This project is private and proprietary.
 
 ---
 
