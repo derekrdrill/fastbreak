@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { toast } from 'sonner';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 import { Form } from '@/components/ui/form';
@@ -14,19 +13,7 @@ import { SPORTS } from '@/app/_constants/events';
 import { createEvent, updateEvent } from '@/app/_actions';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import type { Event, Venue } from '@/app/_types';
-
-const sports = SPORTS.map(sport => sport.name) as [string, ...string[]];
-
-const formSchema = z.object({
-  fullName: z.string().min(1, 'Event name is required'),
-  shortName: z.string().min(1, 'Short name is required'),
-  description: z.string().optional(),
-  sportType: z.enum(sports),
-  date: z.string().min(1, 'Date is required'),
-  venues: z.array(z.string()).min(1, 'At least one venue is required'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { formSchema, sports, type FormValues } from './schema/event.schema';
 
 interface EventFormProps {
   venues: Venue[];
@@ -76,7 +63,7 @@ function EventForm({ venues, event }: EventFormProps) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const hasMoreThanOneVenue = venuesArray?.length && venuesArray.length > 1;
+  const hasMoreThanOneVenue = (venuesArray?.length ?? 0) > 1;
 
   const isUpdating = isSubmitting && isEditMode;
   const isCreating = isSubmitting && !isEditMode;

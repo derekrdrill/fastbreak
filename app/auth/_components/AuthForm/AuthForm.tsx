@@ -4,40 +4,13 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { HiEye, HiEyeSlash } from 'react-icons/hi2';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { FormInput } from '@/app/_components';
-
-const authSchema = z
-  .object({
-    email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    // Only validate confirmPassword in signup mode
-    const isSignupMode = data.confirmPassword !== undefined && data.confirmPassword !== '';
-    if (isSignupMode) {
-      if (!data.confirmPassword) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Please confirm your password',
-          path: ['confirmPassword'],
-        });
-      } else if (data.password !== data.confirmPassword) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Passwords don't match",
-          path: ['confirmPassword'],
-        });
-      }
-    }
-  });
+import { authSchema, type AuthFormValues } from './schema/auth.schema';
 
 type AuthMode = 'login' | 'signup';
-type AuthFormValues = z.infer<typeof authSchema>;
 
 interface AuthFormProps {
   onSubmit: (values: AuthFormValues, mode: AuthMode) => void | Promise<void>;
@@ -91,8 +64,6 @@ function AuthForm({ onSubmit, onGoogleAuth }: AuthFormProps) {
   return (
     <div className='space-y-6'>
       <div className='text-center mb-8'>
-        {/* <h1 className='text-xl font-bold mb-6'>{isLogin ? 'Welcome back' : 'Create an account'}</h1> */}
-
         <div className='inline-flex gap-8 border-b border-gray-200 dark:border-gray-800'>
           <Button
             type='button'
