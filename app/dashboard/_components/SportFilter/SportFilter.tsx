@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SPORTS } from '@/app/_constants/events';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
+import { getDashboardUrlWithParam } from '@/app/dashboard/_helpers/dashboard.helpers';
 
 function SportFilter() {
   const router = useRouter();
@@ -15,18 +16,14 @@ function SportFilter() {
   const selectValue = urlSport || '';
 
   const handleChange = (value: string) => {
-    setSportFilter(value ? Number(value) : undefined);
+    const valueNumeric = value ? Number(value) : undefined;
+    setSportFilter(valueNumeric);
     setIsLoading(true);
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (value) {
-      params.set('sport', value);
-    } else {
-      params.delete('sport');
-    }
-
-    const paramsString = params.toString();
-    const dashboardUrl = paramsString ? `/dashboard?${paramsString}` : '/dashboard';
+    const dashboardUrl = getDashboardUrlWithParam({
+      currentParams: searchParams,
+      key: 'sport',
+      value,
+    });
     router.push(dashboardUrl);
   };
 

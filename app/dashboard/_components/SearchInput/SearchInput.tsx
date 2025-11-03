@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
+import { getDashboardUrlWithParam } from '@/app/dashboard/_helpers/dashboard.helpers';
 
 function SearchInput() {
   const router = useRouter();
@@ -17,16 +18,12 @@ function SearchInput() {
 
   const [localValue, setLocalValue] = useState(urlSearch);
 
+  const dashboardUrlWithSearch = getDashboardUrlWithParam({
+    currentParams: searchParams,
+    key: 'search',
+    value: localValue,
+  });
   const shouldShowClearButton = !!localValue && !isLoading;
-
-  const getDashboardUrlWithSearch = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    const next = value.trim();
-    if (next) params.set('search', next);
-    else params.delete('search');
-    const str = params.toString();
-    return str ? `/dashboard?${str}` : '/dashboard';
-  };
 
   const handleChange = (value: string) => {
     setLocalValue(value);
@@ -36,7 +33,7 @@ function SearchInput() {
     const localValueTrimmed = localValue.trim();
     setSearch(localValueTrimmed);
     setIsLoading(true);
-    router.push(getDashboardUrlWithSearch(localValueTrimmed));
+    router.push(dashboardUrlWithSearch);
   };
 
   const handleClear = () => {
