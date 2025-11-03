@@ -50,6 +50,7 @@ function EventsList({ events }: EventsListProps) {
                 opts={{
                   align: 'start',
                   loop: false,
+                  watchDrag: shouldShowCarousel,
                 }}
                 className='w-full px-7 lg:px-0'
               >
