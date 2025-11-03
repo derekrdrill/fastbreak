@@ -1,4 +1,8 @@
-import { getFormattedVenues, getEventsBySport } from './dashboard.helpers';
+import {
+  getFormattedVenues,
+  getEventsBySport,
+  getDashboardUrlWithParam,
+} from './dashboard.helpers';
 import type { Event } from '@/app/_types';
 
 describe('dashboard.helpers', () => {
@@ -89,6 +93,30 @@ describe('dashboard.helpers', () => {
       if (basketballSection) {
         expect(basketballSection.events.length).toBe(2);
       }
+    });
+  });
+
+  describe('getDashboardUrlWithParam', () => {
+    it('should add the param when value is non-empty after trimming', () => {
+      const params = new URLSearchParams('foo=bar');
+      const url = getDashboardUrlWithParam({
+        currentParams: params,
+        key: 'search',
+        value: '  hello  ',
+      });
+      expect(url).toBe('/dashboard?foo=bar&search=hello');
+    });
+
+    it('should delete the param when value is empty after trimming', () => {
+      const params = new URLSearchParams('search=hello');
+      const url = getDashboardUrlWithParam({ currentParams: params, key: 'search', value: '   ' });
+      expect(url).toBe('/dashboard');
+    });
+
+    it('should keep other params when deleting a specific param', () => {
+      const params = new URLSearchParams('a=1&search=term&b=2');
+      const url = getDashboardUrlWithParam({ currentParams: params, key: 'search', value: '' });
+      expect(url).toBe('/dashboard?a=1&b=2');
     });
   });
 });

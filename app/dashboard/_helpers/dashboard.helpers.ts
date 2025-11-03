@@ -29,3 +29,44 @@ function getEventsBySport({ events }: { events: Event[] }) {
 }
 
 export { getEventsBySport, getFormattedVenues };
+
+/**
+ * Builds a `/dashboard` URL with updated query parameters.
+ * If `value` is empty after trimming, the param is removed; otherwise it is set.
+ *
+ * @param params - Object of arguments
+ * @param params.currentParams - Existing query params as `URLSearchParams` or a raw query string (e.g. `"a=1&b=2"`)
+ * @param params.key - The query parameter key to set or delete
+ * @param params.value - The value to apply (will be trimmed); deleted if empty after trim
+ * @returns A URL string pointing to `/dashboard` with the updated querystring
+ *
+ * @example
+ * // Adds `search=hello` to existing params
+ * getDashboardUrlWithParam({ currentParams: 'foo=bar', key: 'search', value: '  hello ' });
+ * // -> '/dashboard?foo=bar&search=hello'
+ *
+ * @example
+ * // Removes `search` if value is empty after trim
+ * getDashboardUrlWithParam({ currentParams: 'search=hello&x=1', key: 'search', value: '   ' });
+ * // -> '/dashboard?x=1'
+ */
+function getDashboardUrlWithParam({
+  currentParams,
+  key,
+  value,
+}: {
+  currentParams: URLSearchParams | string;
+  key: string;
+  value: string;
+}) {
+  const params = new URLSearchParams(
+    typeof currentParams === 'string' ? currentParams : currentParams.toString(),
+  );
+  const next = value.trim();
+  if (next) params.set(key, next);
+  else params.delete(key);
+  const str = params.toString();
+  return str ? `/dashboard?${str}` : '/dashboard';
+}
+
+export { getDashboardUrlWithParam };
