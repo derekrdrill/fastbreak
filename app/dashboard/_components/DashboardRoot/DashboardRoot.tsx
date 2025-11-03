@@ -21,16 +21,12 @@ function DashboardRoot({ initialEvents }: DashboardRootProps) {
 
   const hasHydrated = useDashboardStore(state => state._hasHydrated);
   const view = useDashboardStore(state => state.view);
-  const pendingSportFilter = useDashboardStore(state => state.pendingSportFilter);
   const isLoading = useDashboardStore(state => state.isLoading);
   const setView = useDashboardStore(state => state.setView);
-  const setPendingSportFilter = useDashboardStore(state => state.setPendingSportFilter);
   const setIsLoading = useDashboardStore(state => state.setIsLoading);
 
   const urlSport = searchParams.get('sport');
-  const urlSportFilter = urlSport ? Number(urlSport) : null;
-  const effectiveSportFilter =
-    pendingSportFilter !== undefined ? pendingSportFilter : urlSportFilter;
+  const effectiveSportFilter = urlSport ? Number(urlSport) : null;
 
   const shouldShowShimmer = !hasHydrated || isLoading || isInitialMount;
 
@@ -53,12 +49,6 @@ function DashboardRoot({ initialEvents }: DashboardRootProps) {
       });
     }
   }, [initialEvents, isInitialMount, setIsLoading]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      setPendingSportFilter(undefined);
-    }
-  }, [isLoading, setPendingSportFilter]);
 
   return (
     <div className='container mx-auto px-4 py-8'>

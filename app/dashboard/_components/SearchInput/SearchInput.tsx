@@ -11,6 +11,7 @@ function SearchInput() {
   const searchParams = useSearchParams();
   const isLoading = useDashboardStore(state => state.isLoading);
   const setIsLoading = useDashboardStore(state => state.setIsLoading);
+  const setSearch = useDashboardStore(state => state.setSearch);
   const urlSearch = searchParams.get('search') || '';
 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -41,6 +42,7 @@ function SearchInput() {
 
     debounceTimeoutRef.current = setTimeout(() => {
       lastCommittedValueRef.current = value;
+      setSearch(value);
       setIsLoading(true);
       setIsPendingSearch(false);
       setTimeout(() => {
