@@ -40,7 +40,7 @@
 - ✅ Event CRUD flows covering multi-venue entry, validation, and optimistic UI refresh
 - ✅ Toast-driven success/error feedback and shimmer loading states
 - ✅ Consistent typing via shared `DbResult`, helper utilities, and Zod form schemas
-- ✅ Route guard via `middleware.ts` keeps authenticated-only pages protected
+- ✅ Route guard via `proxy.ts` keeps authenticated-only pages protected
 - 🚀 Deployed in Vercel
 
 ---
@@ -110,7 +110,7 @@ fastbreak/
 │   ├── dashboard/         # Dashboard with events list
 │   └── event/             # Event creation/editing pages
 ├── components/            # Shadcn UI components
-├── middleware.ts          # Route protection middleware
+├── proxy.ts               # Route protection proxy middleware
 └── package.json
 ```
 
