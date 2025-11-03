@@ -58,7 +58,7 @@ function SearchInput() {
       <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
       <input
         type='text'
-        placeholder='Search events by name...'
+        placeholder='Search events by full or short name (Los Angeles Lakers vs. Boston Celtics or LAL v BOS)...'
         value={localValue}
         onChange={e => handleChange(e.target.value)}
         onKeyDown={handleKeyDown}

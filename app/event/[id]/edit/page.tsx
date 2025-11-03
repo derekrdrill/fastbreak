@@ -11,7 +11,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   ]);
 
   const venues = venuesResult.success ? venuesResult.data || [] : [];
-  const event = eventResult.success ? eventResult.data || null : null;
+  const event = eventResult.success ? eventResult.data : null;
 
   return (
     <>
@@ -20,7 +20,12 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
         <>
           <EventForm venues={venues} event={event} />
           <div className='mt-6 pt-6 border-t'>
-            <AddDeleteButtons eventId={event.id} showDelete showEdit={false} />
+            <AddDeleteButtons
+              eventId={event.id}
+              deleteButtonText='Delete this event'
+              showDelete
+              showEdit={false}
+            />
           </div>
         </>
       )}
