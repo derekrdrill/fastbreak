@@ -1,21 +1,17 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { getSupabaseClient } from '@/app/_helpers/db/client/client';
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
-  const supabase = createServerClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          request.cookies.set(name, value);
-          response.cookies.set(name, value, options);
-        });
-      },
-    },
-  });
+
+  // Skip auth redirects in local development
+  const isLocalDev = process.env.ENV === 'local';
+
+  if (isLocalDev) {
+    return response;
+  }
+
+  const supabase = await getSupabaseClient(request, response);
 
   const {
     data: { user },
