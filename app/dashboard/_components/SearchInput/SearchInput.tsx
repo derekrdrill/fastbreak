@@ -7,8 +7,11 @@ import { Search, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDashboardStore } from '@/app/dashboard/_store/dashboard.store';
 import { getDashboardUrlWithParam } from '@/app/dashboard/_helpers/dashboard.helpers';
+import { useResponsiveEngine } from '@/app/_hooks/useResponsiveEngine/useResponsiveEngine';
+import { SEARCH_INPUT_PLACEHOLDER } from './_constants/searchInput.constants';
 
 function SearchInput() {
+  const { isDesktop } = useResponsiveEngine();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isLoading = useDashboardStore(state => state.isLoading);
@@ -58,7 +61,7 @@ function SearchInput() {
       <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400' />
       <input
         type='text'
-        placeholder='Search events by full or short name (Los Angeles Lakers vs. Boston Celtics or LAL v BOS)...'
+        placeholder={isDesktop ? SEARCH_INPUT_PLACEHOLDER.desktop : SEARCH_INPUT_PLACEHOLDER.mobile}
         value={localValue}
         onChange={e => handleChange(e.target.value)}
         onKeyDown={handleKeyDown}
