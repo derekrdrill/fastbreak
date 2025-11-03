@@ -1,10 +1,11 @@
 'use client';
 
-import { useFormContext, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
+import { type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import classNames from 'classnames';
 import type { ComponentProps, ReactNode } from 'react';
+import { useFormControl } from '@/app/_hooks';
 
 interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -30,9 +31,7 @@ function FormInput<
   required,
   ...props
 }: FormInputProps<TFieldValues, TName>) {
-  const formContext = useFormContext<TFieldValues>();
-  const hasControl = Boolean(control);
-  const formControl = hasControl ? control : formContext.control;
+  const formControl = useFormControl<TFieldValues>(control);
 
   return (
     <FormField
