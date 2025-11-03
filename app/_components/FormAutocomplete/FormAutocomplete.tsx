@@ -1,10 +1,12 @@
 'use client';
 
 import classNames from 'classnames';
-import { useState, useRef, useEffect } from 'react';
-import { useFormContext, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
+import { useState, useRef } from 'react';
+import { type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useFormControl } from '@/app/_components/_hooks/useFormControl';
+import { useClickOutside } from '@/app/_components/_hooks/useClickOutside';
 
 interface SelectOption {
   label: string;
@@ -36,35 +38,12 @@ function FormAutocomplete<
   className,
   required,
 }: FormAutocompleteProps<TFieldValues, TName>) {
-  const formContext = useFormContext<TFieldValues>();
-  const hasControl = Boolean(control);
-  const formControl = hasControl ? control : formContext.control;
+  const formControl = useFormControl<TFieldValues>(control);
   const [searchValue, setSearchValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const dropdown = dropdownRef.current;
-      const input = inputRef.current;
-      const hasDropdown = Boolean(dropdown);
-      const hasInput = Boolean(input);
-      const clickedInDropdown = hasDropdown && dropdown?.contains(event.target as Node);
-      const clickedInInput = hasInput && input?.contains(event.target as Node);
-      const clickedOutside = hasDropdown && hasInput && !clickedInDropdown && !clickedInInput;
-
-      if (clickedOutside) {
-        setIsOpen(false);
-      }
-    };
-
-    const shouldListen = isOpen;
-    if (shouldListen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
+  useClickOutside([inputRef, dropdownRef], () => setIsOpen(false), isOpen);
 
   return (
     <FormField
