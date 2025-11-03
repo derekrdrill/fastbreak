@@ -8,11 +8,7 @@ export const metadata: Metadata = {
   description: 'Create, view, and manage sports events with venue information',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en'>
       <body>

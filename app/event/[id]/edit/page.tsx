@@ -1,6 +1,6 @@
 import EventForm from '@/app/event/_components/EventForm';
 import { getVenues, getEvent } from '@/app/_actions';
-import { BackButton, AddDeleteButtons } from '@/app/_components';
+import { AddDeleteButtons } from '@/app/_components';
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,8 +14,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const event = eventResult.success ? eventResult.data || null : null;
 
   return (
-    <div className='container mx-auto px-4 py-8 max-w-2xl'>
-      <BackButton />
+    <>
       <h1 className='text-3xl font-bold mb-6'>Edit Event</h1>
       {event && (
         <>
@@ -26,6 +25,6 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
         </>
       )}
       {!event && <p>Event not found</p>}
-    </div>
+    </>
   );
 }
