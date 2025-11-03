@@ -150,7 +150,6 @@ function EventForm({ venues, event }: EventFormProps) {
   useEffect(() => {
     if (event) {
       setSelectedPlan(event);
-      return () => setSelectedPlan(null);
     }
   }, [event, setSelectedPlan]);
 
